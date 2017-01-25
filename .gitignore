@@ -1,3 +1,10 @@
+# Autotools generated files
+aclocal.m4
+configure
+config.in
+Makefile
+Makefile.in
+
 # Object files
 *.o
 *.ko
