@@ -28,29 +28,6 @@
 #include <sys/socket.h>
 
 /**
- * @typedef: BZENSOCK_STOP_RECV 0
- * 
- * Stop receiving data for this socket. If further data arrives, reject it.
- */
-#define BZENSOCK_STOP_RECV 0
-
-/**
- * @typedef: BZENSOCK_STOP_SEND 1
- * 
- * Stop trying to transmit data from this socket. Discard any data waiting 
- * to be sent. Stop looking for acknowledgement of data already sent; don’t 
- * retransmit it if it is lost.
- */
-#define BZENSOCK_STOP_SEND 1
-
-/**
- * @typedef: BZENSOCK_STOP_BOTH 2
- * 
- * Stop both reception and transmission.
- */
-#define BZENSOCK_STOP_BOTH 2
-
-/**
  * Create a socket on target OS.
  * 
  * @param int namespace Specifies local or Internet namepsace.
@@ -64,8 +41,19 @@ int bzen_create_socket(int namespace, int style, int protocol);
 /**
  * Close given socket on target OS.
  * 
+ * Specify SHUT_RD for 'how' to stop receiving data for this socket. 
+ * In this case, if further data arrives, reject it.
+ *
+ * Specify SHUT_WR for 'how' to stop trying to transmit data from this 
+ * socket. Discard any data waiting to be sent. Stop looking for 
+ * acknowledgement of data already sent; don’t retransmit it if it is lost.
+ * 
+ * Specify SHUT_RDWR for 'how' to stop both reception and transmission.
+ * 
+ * @see bzen_create_socket
+ *
  * @param int descriptor File descriptor of socket to close.
- * @param int how BZENSOCK_STOP_RECV | BZENSOCK_STOP_SEND | BZENSOCK_STOP_BOTH
+ * @param int how SHUT_RD | SHUT_WR | SHUT_RDWR
  * 
  * @return int 0 on success and -1 on failure
  */

@@ -41,7 +41,7 @@ int main (int argc, char *argv[])
   }
   else 
   {
-    bzen_close_socket(sock, BZENSOCK_STOP_BOTH);
+    bzen_close_socket(sock, SHUT_RDWR);
   }
   return result;
 }

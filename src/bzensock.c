@@ -106,9 +106,9 @@ int bzen_close_socket(int descriptor, int how)
   {
     default:
       break;
-    case BZENSOCK_STOP_RECV:
-    case BZENSOCK_STOP_SEND:
-    case BZENSOCK_STOP_BOTH:
+    case SHUT_RD:
+    case SHUT_WR:
+    case SHUT_RDWR:
       /* close the socket */
       result = shutdown(descriptor, how);
       if (0 != result) 

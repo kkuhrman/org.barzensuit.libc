@@ -73,7 +73,7 @@ int main (int argc, char *argv[])
   if (sock < 0)
   {
     /* Just close it already. */
-    bzen_close_socket(sock, BZENSOCK_STOP_BOTH);
+    bzen_close_socket(sock, SHUT_RDWR);
   }
   return result;
 }
