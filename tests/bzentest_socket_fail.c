@@ -1,5 +1,5 @@
 /**
- * @file:	bzentest_socket_create_local.c
+ * @file:	bzentest_socket_fail.c
  * @brief:	Unit test graceful exit on failures.
  *
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
@@ -23,57 +23,45 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "bzentest.h"
 #include "bzensock.h"
 
 int main (int argc, char *argv[])
 {
-  int result = 0;
+  int result = BZEN_TEST_EVAL_PASS;
   int bogus_namespace = AF_LOCAL | AF_UNIX | AF_FILE | AF_INET | AF_INET6 | AF_UNSPEC;
   int bogus_style = SOCK_STREAM | SOCK_DGRAM | SOCK_RAW;
   int bogus_protocol = -1;
-  int sock;
+  int socket_fd;
+  int test_result;
 
-  /* Attempt to create the socket using combinations of valid and 
-   * bogus parameters.
-   */
-  sock = bzen_create_socket(AF_LOCAL, bogus_style, 0);
-  if ((sock< 0) && (errno != EPROTONOSUPPORT))
+  /* Expected FAIL on create socket w. bogus address family. */
+  socket_fd = bzen_socket_listen_local(NULL, 0, NULL);
+  if (1 != bzen_test_eval_fn_bool("bzen_create_socket", 0, ((socket_fd < 0) && (errno != EPROTONOSUPPORT)), NULL))
   {
-    fprintf (stderr, "bzen_create_socket(AF_LOCAL, bogus_style, 0)\n");
-    result = 1;
+    fprintf(stderr, "Expected FAIL on create socket w. bogus address family.");
+    result = BZEN_TEST_EVAL_FAIL;
+    goto END_TEST;
   }
-  sock = bzen_create_socket(bogus_namespace, SOCK_DGRAM, 0);
-  if ((sock< 0) && (errno != EPROTONOSUPPORT))
-  {
-    fprintf (stderr, "bzen_create_socket(bogus_namespace, SOCK_DGRAM, 0)\n");
-    result = 1;
-  }
-  sock = bzen_create_socket(AF_LOCAL, SOCK_DGRAM, bogus_protocol);
-  if ((sock< 0) && (errno != EPROTONOSUPPORT))
-  {
-    fprintf (stderr, "bzen_create_socket(AF_LOCAL, SOCK_DGRAM, bogus_protocol)\n");
-    result = 1;
-  }
-  
-  /*
-   * Create a valid, open socket.
-   */
-  sock = bzen_create_socket(PF_LOCAL, SOCK_DGRAM, 0);
-  if (sock < 0)
-  {
-    fprintf(stderr, "bzen_create_socket(PF_LOCAL, SOCK_DGRAM, 0)\n");
-    result = 1;
-  }
+  bzen_socket_close(socket_fd, SHUT_RDWR);
 
-  
-  /*
-   * Attempt to close valid, open socket with combinations of valid 
-   * and bogus parameters.
-   */
-  if (sock < 0)
+  /* Expected FAIL on create socket w. bogus protocol. */
+  socket_fd = bzen_socket_listen_local(SOCK_DGRAM, -1, NULL);
+  if (1 != bzen_test_eval_fn_bool("bzen_create_socket", 0, ((socket_fd < 0) && (errno != EPROTONOSUPPORT)), NULL))
   {
-    /* Just close it already. */
-    bzen_close_socket(sock, SHUT_RDWR);
+    fprintf(stderr, "Expected FAIL on create socket w. bogus protocol.");
+    result = BZEN_TEST_EVAL_FAIL;
+    goto END_TEST;
   }
+  /* @todo: close socket if more tests follow. */
+
+  /* @todo: open valid socket and fail on bind. */
+
+  /* @todo: fail on transmissions. */
+
+  /* @todo: fail on close. */
+
+END_TEST:
+  bzen_socket_close(socket_fd, SHUT_RDWR);
   return result;
 }

@@ -26,11 +26,16 @@ AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAG_VISIBILITY)
 # Add source file sub-directories to compiler search path
 AM_CPPFLAGS = \
 	-Iinc -I$(top_srcdir)/inc \
+	-Ilib -I$(top_srcdir)/lib \
 	-Isrc -I$(top_srcdir)/src
 
 # API header files to install
 bzenincdir = $(includedir)/bzenc
-bzeninc_HEADERS = $(top_srcdir)/inc/bzensock.h
+bzeninc_HEADERS = \
+	$(top_srcdir)/inc/bzenchar.h \
+	$(top_srcdir)/inc/bzenmem.h \
+	$(top_srcdir)/inc/bzensock.h \
+	$(top_srcdir)/inc/bzentest.h
 
 # package details
 pkgconfigdir = $(libdir)/pkgconfig
@@ -40,10 +45,17 @@ pkgconfig_DATA = libbzenc.pc
 lib_LTLIBRARIES = libbzenc.la
 
 libbzenc_la_SOURCES = \
+	bzenchar.c \
+	bzenchar.h \
+	bzenmem.c \
+	bzenmem.h \
 	bzensock.c \
-	bzensock.h
+	bzensock.h \
+	bzentest.c \
+	bzentest.h
 
-# @todo: LDADD e.g. Gnu Lib
+# Gnu Lib
+libbzenc_la_LIBADD = $(top_builddir)/lib/libgnu.a
 
 libbzenc_la_LDFLAGS = -rpath '$(libdir)'
 

@@ -22,21 +22,15 @@
  */
 
 #ifndef _BZENLIBC_SOCK_H_
-# define _BZENLIBC_SOCK_H_
+#define _BZENLIBC_SOCK_H_
 
 #include <errno.h>
 #include <sys/socket.h>
+#include "bzenchar.h"
 
-/**
- * Create a socket on target OS.
- * 
- * @param int namespace Specifies local or Internet namepsace.
- * @param int style Specifies the communication style.
- * @param int protocol Designates the specific protocol.
- *
- * @return int File descriptor for the newly created socket.
- */
-int bzen_create_socket(int namespace, int style, int protocol);
+/* A default prefix for things such as local addresses. */
+const char* BZENSOCK_PREFIX = "BZENSOCK_";
+#define BZENSOCK_PREFIX BZENSOCK_PREFIX
 
 /**
  * Close given socket on target OS.
@@ -55,8 +49,46 @@ int bzen_create_socket(int namespace, int style, int protocol);
  * @param int descriptor File descriptor of socket to close.
  * @param int how SHUT_RD | SHUT_WR | SHUT_RDWR
  * 
- * @return int 0 on success and -1 on failure
+ * @return int EXIT_SUCCESS | EXIT_FAILURE.
  */
-int bzen_close_socket(int descriptor, int how);
+int bzen_socket_close(int descriptor, int how);
+
+/**
+ * Open a socket to connect to socket server (client).
+ *
+ * @param int socket_fd File descriptor of server socket.
+ * @param const char* address Address of server socket.
+ *
+ * @return int File descriptor for the newly created socket.
+ */
+int bzen_socket_connect(int socket_fd, const char* address);
+
+/**
+ * Open a socket to listen on network address (server).
+ *
+ * @param int style Specifies the communication style.
+ * @param int protocol Designates the specific protocol.
+ * @param const char* host IP address or FQDN.
+ * @param unsigned short int port Port number.
+ * @param int format IPv4 or IPv6.
+ *
+ * @return int File descriptor for the newly created socket.
+ */
+int bzen_socket_listen_inet(int style, 
+			    int protocol, 
+			    const char* host,
+			    unsigned short int port,
+			    int format);
+
+/**
+ * Open a socket to listen on local address (server).
+ *
+ * @param int style Specifies the communication style.
+ * @param int protocol Designates the specific protocol.
+ * @param const char* filename Reserved - should be NULL.
+ *
+ * @return int File descriptor for the newly created socket.
+ */
+int bzen_socket_listen_local(int style, int protocol, const char* filename);
 
 #endif /* _BZENLIBC_SOCK_H_ */

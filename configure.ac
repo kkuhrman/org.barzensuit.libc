@@ -53,6 +53,14 @@ AC_DEFINE([COPYRIGHT_HOLDER], ["Kuhrman Technology Solutions LLC"], [copyright h
 # Checks for programs.
 AC_PROG_CC
 
+# Since we use gnulib: gl_EARLY must be called as soon as possible after
+# the C compiler is checked.  The others could be later, but we just
+# keep everything together.
+gl_EARLY
+
+# For gnulib.
+gl_INIT
+
 # Libtool tests
 AM_PROG_AR
 LT_INIT
@@ -62,6 +70,7 @@ LT_PREREQ([2.4])
 
 AC_CONFIG_FILES([
  Makefile
+ lib/Makefile
  src/Makefile
  src/libbzenc.pc
  tests/Makefile

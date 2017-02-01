@@ -23,33 +23,55 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "bzentest.h"
 #include "bzensock.h"
 
 int main (int argc, char *argv[])
 {
-  int result = 0;
+  int result = BZEN_TEST_EVAL_PASS;
   int namespace = PF_INET;
   int style = SOCK_STREAM;
   int protocol = 0;
+  const char* host;
+  unsigned short int port;
+  int format;  
+  int socket_fd;
+  
+  /* @todo: get the test host name or address. */
+  
+  /* @todo: get port number in unreserved range. */
+  
+  /* @todo: assign format IPv4 or IPv6 */
 
   /* create the socket */
-  int sock = bzen_create_socket(namespace, style, protocol);
-  if (sock < 0) 
-  {
-    /*
-     * Permission denied is a common error on systems, which support 
-     *  sockets, but are not properly configured to allow user to do so.
-     */
-    if (EACCES == sock) 
+  socket_fd = bzen_socket_listen_inet(style, 
+				      protocol, 
+				      host,
+				      port,
+				      format);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_listen_inet()",
+						    (socket_fd < 0),
+						    0,
+						    NULL))
     {
-      fprintf (stderr, "User denied permission to create Internet socket.\n");
+      fprintf(stderr, "failed to open inet socket; return: %d\n", (int) socket_fd);
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
     }
-    fprintf (stderr, "bzen_create_socket(PF_INET, SOCK_STREAM, 0)\n");
-    result = 1;
-  }
-  else 
-  {
-    bzen_close_socket(sock, SHUT_RDWR);
-  }
+  
+  /* @todo: transmission tests (use loopback?) */
+  
+  /* Close the socket. */
+  result = bzen_socket_close(socket_fd, SHUT_RDWR);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_close()",
+						    (result == BZEN_TEST_EVAL_PASS),
+						    1,
+						    NULL)) 
+    {
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
+    }
+
+ END_TEST:
   return result;
 }

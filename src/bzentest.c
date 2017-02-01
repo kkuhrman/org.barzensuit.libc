@@ -24,32 +24,43 @@
 #include <stdlib.h>
 #include "bzentest.h"
 
+/* Casts any integer as a pseudo boolean type. */
+int bzen_test_bool(int value)
+{
+  int result = (value == 0) ? BZEN_TEST_BOOL_FALSE : BZEN_TEST_BOOL_TRUE;
+  return result;
+}
+
 /* Evaluates result of test on funtion returning boolean. */
 int bzen_test_eval_fn_bool(char* fn_name, int expected, int actual, char* error_message)
 {
-  int result = 0;
+  int result;
   char* msg_out;
-
-  /* Fix NULL message. */
-  if (error_message != NULL)
-  {
-    msg_out = error_message;
-  }
-  else 
-  {
-    msg_out = "\0";
-  }
-
-  if (expected != actual) {
-    char* str_exp = (expected == 0) ? "false" : "true";
-    char* str_act = (actual == 0) ? "false" : "true";
-    fprintf(stderr, "Call to %s() expected: %s; returned: %s. %s",
+  int expected_bool = BZEN_TEST_BOOL(expected);
+  int actual_bool = BZEN_TEST_BOOL(actual);
+  
+  result = (expected_bool == actual_bool) ? BZEN_TEST_EVAL_PASS : BZEN_TEST_EVAL_FAIL;
+  if (result == BZEN_TEST_EVAL_FAIL) 
+    {
+      /* Fix NULL message. */
+      if (error_message != NULL)
+	{
+	  msg_out = error_message;
+	}
+      else 
+	{
+	  msg_out = "\0";
+	}
+      /* @todo: unit test logging. */
+      char* str_exp = (expected == 0) ? "false" : "true";
+      char* str_act = (actual == 0) ? "false" : "true";
+      fprintf(stderr, "Call to %s() expected: %s; returned: %s. %s",
 	      fn_name,
 	      str_exp,
 	      str_act,
 	      msg_out);
-    result = 1;
-  }
+      result = BZEN_TEST_EVAL_FAIL;
+    }
   return result;
 }
 
@@ -61,20 +72,21 @@ int bzen_test_eval_fn_int(char* fn_name, int expected, int actual, char* error_m
 
   /* Fix NULL message. */
   if (error_message != NULL)
-  {
-    msg_out = error_message;
-  }
+    {
+      msg_out = error_message;
+    }
   else 
-  {
-    msg_out = "\0";
-  }
+    {
+      msg_out = "\0";
+    }
 
   if (expected != actual) {
-    fprintf(stderr, "Call to %s() expected: %d; returned: %d. %s",
-	      fn_name,
-	      expected,
-	      actual,
-	      msg_out);
+    /* @todo: unit test logging. */
+    fprintf(stderr, "Call to %s() expected: %d; returned: %d. %s\n",
+	    fn_name,
+	    expected,
+	    actual,
+	    msg_out);
     result = 1;
   }
   return result;

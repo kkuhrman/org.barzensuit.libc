@@ -23,6 +23,34 @@
 #define _BZENLIBC_TEST_H_
 
 /**
+ * Some POSIX systems standardize on zero as success
+ * and nonzero as fail, based on the convention of 
+ * main() returning similar results. boolean tests 
+ * tend to expect the opposite: zero for false and 
+ * nonzero for true. These constants are provided to
+ * avoid some confusion over this nuance in code.
+ */
+const unsigned short int BZEN_TEST_EVAL_PASS = 0;
+const unsigned short int BZEN_TEST_EVAL_FAIL = 1;
+#define BZEN_TEST_EVAL_PASS BZEN_TEST_EVAL_PASS
+#define BZEN_TEST_EVAL_FAIL BZEN_TEST_EVAL_FAIL
+
+const unsigned short int BZEN_TEST_BOOL_TRUE = 1;
+const unsigned short int BZEN_TEST_BOOL_FALSE = 0;
+#define BZEN_TEST_BOOL_TRUE BZEN_TEST_BOOL_TRUE
+#define BZEN_TEST_BOOL_FALSE BZEN_TEST_BOOL_FALSE
+#define BZEN_TEST_BOOL bzen_test_bool
+
+/**
+ * Casts any integer as a pseudo boolean type.
+ *
+ * @param int value Integer value to evaluate.
+ *
+ * @return int 1 or value is nonzero otherwise 0.
+ */
+int bzen_test_bool(int value);
+
+/**
  * Evaluates result of test on function returning boolean.
  *
  * In Gnu C true and false are nonzero and zero respectively.

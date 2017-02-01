@@ -25,82 +25,17 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/un.h>
+#include <dirent.h>
 
+/* libzenc includes */
+#include "bzenmem.h"
 #include "bzensock.h"
 
-/* Create a socket on target OS. */
-
-int bzen_create_socket (int namespace, int style, int protocol)
+/* Close given socket on target OS. */
+int bzen_socket_close(int socket_fd, int how)
 {
-  int result = EXIT_FAILURE;
-  
-  switch (namespace) 
-  {
-    default:
-      break;
-    case PF_LOCAL:
-    case PF_INET:
-      /**
-       * @todo: protocol validation 
-       * At present we only accept default (0) protocol for 
-       * given namespace.
-       */
-      if (0 != protocol) 
-      {
-        break;
-      }
-      
-      /**
-       * @todo: style validation support for SOCK_RAW
-       */
-      if ((SOCK_STREAM != style) || (SOCK_DGRAM != style))
-      {
-        break;
-      }
-
-      /* Create the socket. */
-      result = socket(namespace, style, protocol);
-      if (result < 0)
-      {
-        /*
-         * @todo: result = EPROTONOSUPPORT (The protocol or style is not 
-         *    supported by the namespace specified).
-         */
-
-        /*
-         * @todo: result = EMFILE (The process already has too many file
-         *    descriptors open).
-         */
-
-        /*
-         * @todo: result = ENFILE (The system already has too many file 
-         *    descriptors open).
-         */
-
-
-        /*
-         * @todo: result = EACCES (The process does not have the privilege 
-         *    to create a socket of the specified style or protocol).
-         */
-
-        /*
-         * @todo: result = ENOBUFS (The system ran out of internal buffer space).
-         */
-        perror("socket");
-      }
-      break;
-  }
-  return result;
-}
-
-/**
- * Close given socket on target OS.
- */
-int bzen_close_socket(int descriptor, int how) 
-{
-  int result = EXIT_FAILURE;
+  int result = -1;
   
   switch (how) 
   {
@@ -110,23 +45,104 @@ int bzen_close_socket(int descriptor, int how)
     case SHUT_WR:
     case SHUT_RDWR:
       /* close the socket */
-      result = shutdown(descriptor, how);
-      if (0 != result) 
+      result = shutdown(socket_fd, how);
+      if (result != 0) 
       {
-        /*
-         * @todo: result = EBADF (socket is not a valid file descriptor).
-         */
-
-        /*
-         * @todo: result = ENOTSOCK (socket is not a socket).
-         */
-
-        /*
-         * @todo: result = ENOTCONN (socket is not connected).
-         */
-        perror("socket");
+        /* @todo: error logging. */
+        perror("shutdown");
+	goto SOCK_FAIL;
       }      
       break;
   }
+  /* @todo: if socket is local, unlink file. */
+  /* unlink(address.sun_path); */
+
+SOCK_FAIL:
   return result;
+}
+
+/*  Open a socket to connect to socket server (client). */
+int bzen_socket_connect(int socket_fd, const char* address)
+{
+}
+
+/* Open a socket to listen on network address (server). */
+int bzen_socket_listen_inet(int style, 
+			    int protocol, 
+			    const char* host,
+			    unsigned short int port,
+			    int format)
+{
+}
+
+/* Open a socket to listen on local address (server).*/
+int bzen_socket_listen_local(int style, int protocol, const char* filename)
+{
+  int socket_fd;
+  int af_supported;
+  char* intrnl_addr;
+  struct sockaddr* socket_addr;
+  size_t socket_addr_size;
+  int bind_result;
+  
+  /* Validate communication style is supported. */
+  switch (style)
+  {
+    default:
+      af_supported = 0;
+      break;
+    case SOCK_DGRAM:
+    case SOCK_STREAM:
+      af_supported = 1;
+      break;
+  }
+  
+  if (0 == af_supported)
+  {
+    /* @todo: error logging. */
+    socket_fd = -1;
+    goto SOCK_FAIL;
+  }
+  
+  /* Create the socket. */
+  socket_fd = socket(PF_LOCAL, style, protocol);
+  if (socket_fd < 0) 
+  {
+    /* @todo: error logging. */
+    shutdown(socket_fd, SHUT_RDWR);
+    socket_fd = -1;
+    goto SOCK_FAIL;
+  }
+  
+  /* @todo: filename is currrently ignored. */
+  
+  /* @todo: environment variable for application temp dir. */
+  intrnl_addr = getenv("BZENTEST_TEMP_DIR");
+  
+  /* Populate socket address. */
+  if (style == SOCK_DGRAM)
+  {
+    struct sockaddr_un dgram_address;
+    dgram_address.sun_family = AF_LOCAL;
+    strncpy(dgram_address.sun_path, intrnl_addr, sizeof(dgram_address.sun_path));
+    dgram_address.sun_path[sizeof(dgram_address.sun_path) - 1] = '\0';
+    socket_addr_size = SUN_LEN (&dgram_address);
+    socket_addr = (struct sockaddr*) &dgram_address;
+  }
+  /* @todo: else SOCK_STREAM */
+  
+  /* Attempt to bind socket to address. */
+  bind_result = bind(socket_fd, socket_addr, socket_addr_size);
+  if (socket_fd < 0) 
+  {
+    /* @todo: error logging. */
+    shutdown(socket_fd, SHUT_RDWR);
+    socket_fd = -1;
+    goto SOCK_FAIL;
+  }
+
+SOCK_FAIL:
+  /* @todo: on fail. */
+
+  return socket_fd;
 }

@@ -2,6 +2,12 @@
  * @file:	bzentest_socket_create_local.c
  * @brief:	Unit test create socket in local namespace.
  *
+ * In actuality, this unit test comprises creating, binding and 
+ * closing a local socket. All three functions must succeed to PASS.
+ *
+ * For unit tests of error conditions:
+ * @see:	bzentest_socket_fail.c
+ *
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
  * @license:	GPLv3+: GNU GPL version 3
  *
@@ -23,25 +29,46 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "bzentest.h"
 #include "bzensock.h"
 
 int main (int argc, char *argv[])
 {
-  int result = 0;
-  int namespace = PF_LOCAL;
-  int style = SOCK_DGRAM;
+  int result = BZEN_TEST_EVAL_PASS;
+  int style = SOCK_DGRAM; /* SOCK_STREAM; */
   int protocol = 0;
+  int socket_fd;
+  int check;
 
   /* create the socket */
-  int sock = bzen_create_socket(namespace, style, protocol);
-  if (sock < 0) 
-  {
-    fprintf (stderr, "bzen_create_socket(PF_LOCAL, SOCK_DGRAM, 0)\n");
-    result = 1;
-  }
-  else 
-  {
-    bzen_close_socket(sock, SHUT_RDWR);
-  }
+  socket_fd = bzen_socket_listen_local(style, protocol, NULL);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_listen_local()",
+						    (socket_fd < 0),
+						    0,
+						    NULL))
+    {
+      fprintf(stderr, "failed to open local socket; return: %d\n", (int) socket_fd);
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
+    }
+  
+  /* @todo: create client socket. */
+  
+  /* @todo: client send, server read */
+  
+  /* @todo: server send, client read */
+    
+  /* Close the socket. */
+  check = bzen_socket_close(socket_fd, SHUT_RDWR);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_close()",
+						    (check == 0),
+						    1,
+						    NULL)) 
+    {
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
+    }
+
+ END_TEST:
   return result;
 }

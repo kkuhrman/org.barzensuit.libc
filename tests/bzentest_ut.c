@@ -30,37 +30,49 @@ int main (int argc, char *argv[])
   int result = 0;
 
   /* boolean comparison PASS. */
-  if (0 != bzen_test_eval_fn_bool("bzen_test_eval_fn_bool()", 1, 1, NULL))
-  {
-    fprintf(stderr, "boolean comparison expected: PASS; actual: FAIL.");
-    result = 1;
-    goto END_TEST;
-  }
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_test_eval_fn_bool()", 
+						    1, 
+						    1, 
+						    NULL))
+    {
+      fprintf(stderr, "boolean comparison expected: PASS; actual: FAIL.");
+      result = 1;
+      goto END_TEST;
+    }
 
   /* boolean comparison FAIL. */
-  if (1 != bzen_test_eval_fn_bool("bzen_test_eval_fn_bool()", 1, 0, NULL))
-  {
-    fprintf(stderr, "boolean comparison expected: FAIL; actual: PASS.");
-    result = 1;
-    goto END_TEST;
-  }
+  if (BZEN_TEST_EVAL_PASS == bzen_test_eval_fn_bool("bzen_test_eval_fn_bool()", 
+						    1, 
+						    0, 
+						    NULL))
+    {
+      fprintf(stderr, "boolean comparison expected: FAIL; actual: PASS.");
+      result = 1;
+      goto END_TEST;
+    }
 
   /* integer comparison PASS. */
-  if (0 != bzen_test_eval_fn_int("bzen_test_eval_fn_int()", 1, 1, NULL))
-  {
-    fprintf(stderr, "integer comparison expected: PASS; actual: FAIL.");
-    result = 1;
-    goto END_TEST;
-  }
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_int("bzen_test_eval_fn_int()", 
+						   1, 
+						   1, 
+						   NULL))
+    {
+      fprintf(stderr, "integer comparison expected: PASS; actual: FAIL.");
+      result = 1;
+      goto END_TEST;
+    }
 
   /* integer comparison FAIL. */
-  if (1 != bzen_test_eval_fn_int("bzen_test_eval_fn_int()", 1, 0, NULL))
-  {
-    fprintf(stderr, "integer comparison expected: FAIL; actual: PASS.");
-    result = 1;
-    goto END_TEST;
-  }
+  if (BZEN_TEST_EVAL_PASS == bzen_test_eval_fn_int("bzen_test_eval_fn_int()", 
+						   1, 
+						   0, 
+						   NULL))
+    {
+      fprintf(stderr, "integer comparison expected: FAIL; actual: PASS.");
+      result = 1;
+      goto END_TEST;
+    }
 
-END_TEST:
+ END_TEST:
   return result;
 }

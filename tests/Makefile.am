@@ -24,20 +24,33 @@
 AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAG_VISIBILITY)
 
 # Add source file sub-directories to compiler search path
-AM_CPPFLAGS = -Iinc -I$(top_srcdir)/inc -Isrc -I$(top_srcdir)/src
+AM_CPPFLAGS = \
+	-Iinc -I$(top_srcdir)/inc \
+	-Ilib -I$(top_srcdir)/lib \
+	-Isrc -I$(top_srcdir)/src
 
 AM_LDFLAGS = -no-install
 LDADD = ../src/libbzenc.la
 
 check_PROGRAMS = \
-	bzentest_socket_fail \
+	bzentest_char \
+	bzentest_environment \
 	bzentest_socket_create_inet \
-	bzentest_socket_create_local
+	bzentest_socket_create_local \
+	bzentest_socket_fail \
+	bzentest_ut
 
 TESTS = \
-	bzentest_socket_fail \
+	bzentest_char \
+	bzentest_environment \
 	bzentest_socket_create_inet \
-	bzentest_socket_create_local
+	bzentest_socket_create_local \
+	bzentest_socket_fail \
+	bzentest_ut
+
+TESTS_ENVIRONMENT = \
+	BZENTEST_TEMP_DIR=$(datarootdir)/bzentest; \
+	export BZENTEST_TEMP_DIR;
 
 EXTRA_DIST = $(TESTS)
 
