@@ -51,6 +51,8 @@ TESTS = \
 TESTS_ENVIRONMENT = \
 	BZENTEST_TEMP_DIR=$(datarootdir)/bzentest; \
 	export BZENTEST_TEMP_DIR;
+	BZENTEST_SOCKET_LOCAL_ADDR=bzentestsock; \
+	export BZENTEST_SOCKET_LOCAL_ADDR;
 
 EXTRA_DIST = $(TESTS)
 

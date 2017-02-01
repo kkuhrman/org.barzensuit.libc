@@ -38,7 +38,7 @@ int bzen_socket_close(int socket_fd, int how)
   int result = -1;
   
   switch (how) 
-  {
+    {
     default:
       break;
     case SHUT_RD:
@@ -47,17 +47,17 @@ int bzen_socket_close(int socket_fd, int how)
       /* close the socket */
       result = shutdown(socket_fd, how);
       if (result != 0) 
-      {
-        /* @todo: error logging. */
-        perror("shutdown");
-	goto SOCK_FAIL;
-      }      
+	{
+	  /* @todo: error logging. */
+	  perror("shutdown");
+	  goto SOCK_FAIL;
+	}      
       break;
-  }
+    }
   /* @todo: if socket is local, unlink file. */
   /* unlink(address.sun_path); */
 
-SOCK_FAIL:
+ SOCK_FAIL:
   return result;
 }
 
@@ -80,14 +80,15 @@ int bzen_socket_listen_local(int style, int protocol, const char* filename)
 {
   int socket_fd;
   int af_supported;
-  char* intrnl_addr;
+  char* socket_dir;
+  char* socket_file;
   struct sockaddr* socket_addr;
   size_t socket_addr_size;
   int bind_result;
   
   /* Validate communication style is supported. */
   switch (style)
-  {
+    {
     default:
       af_supported = 0;
       break;
@@ -95,53 +96,54 @@ int bzen_socket_listen_local(int style, int protocol, const char* filename)
     case SOCK_STREAM:
       af_supported = 1;
       break;
-  }
+    }
   
   if (0 == af_supported)
-  {
-    /* @todo: error logging. */
-    socket_fd = -1;
-    goto SOCK_FAIL;
-  }
+    {
+      /* @todo: error logging. */
+      socket_fd = -1;
+      goto SOCK_FAIL;
+    }
   
   /* Create the socket. */
   socket_fd = socket(PF_LOCAL, style, protocol);
   if (socket_fd < 0) 
-  {
-    /* @todo: error logging. */
-    shutdown(socket_fd, SHUT_RDWR);
-    socket_fd = -1;
-    goto SOCK_FAIL;
-  }
+    {
+      /* @todo: error logging. */
+      shutdown(socket_fd, SHUT_RDWR);
+      socket_fd = -1;
+      goto SOCK_FAIL;
+    }
   
   /* @todo: filename is currrently ignored. */
   
   /* @todo: environment variable for application temp dir. */
-  intrnl_addr = getenv("BZENTEST_TEMP_DIR");
+  socket_dir = getenv("BZENTEST_TEMP_DIR");
+  socket_file = getenv("BZENTEST_TEMP_DIR");
   
   /* Populate socket address. */
   if (style == SOCK_DGRAM)
-  {
-    struct sockaddr_un dgram_address;
-    dgram_address.sun_family = AF_LOCAL;
-    strncpy(dgram_address.sun_path, intrnl_addr, sizeof(dgram_address.sun_path));
-    dgram_address.sun_path[sizeof(dgram_address.sun_path) - 1] = '\0';
-    socket_addr_size = SUN_LEN (&dgram_address);
-    socket_addr = (struct sockaddr*) &dgram_address;
-  }
+    {
+      struct sockaddr_un dgram_address;
+      dgram_address.sun_family = AF_LOCAL;
+      strncpy(dgram_address.sun_path, socket_dir, sizeof(dgram_address.sun_path));
+      dgram_address.sun_path[sizeof(dgram_address.sun_path) - 1] = '\0';
+      socket_addr_size = SUN_LEN (&dgram_address);
+      socket_addr = (struct sockaddr*) &dgram_address;
+    }
   /* @todo: else SOCK_STREAM */
   
   /* Attempt to bind socket to address. */
   bind_result = bind(socket_fd, socket_addr, socket_addr_size);
   if (socket_fd < 0) 
-  {
-    /* @todo: error logging. */
-    shutdown(socket_fd, SHUT_RDWR);
-    socket_fd = -1;
-    goto SOCK_FAIL;
-  }
+    {
+      /* @todo: error logging. */
+      shutdown(socket_fd, SHUT_RDWR);
+      socket_fd = -1;
+      goto SOCK_FAIL;
+    }
 
-SOCK_FAIL:
+ SOCK_FAIL:
   /* @todo: on fail. */
 
   return socket_fd;

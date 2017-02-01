@@ -21,7 +21,7 @@
 # @author:	Karl Kuhrman
 #
 
-AC_INIT([bzenlibc], [0.1.0], [bugs@barzensuit.org])
+AC_INIT([bzenlibc], [0.1.1], [bugs@barzensuit.org])
 
 # Must come before AM_INIT_AUTOMAKE.
 AC_CONFIG_AUX_DIR([build-aux])
@@ -37,6 +37,13 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Minimum Autoconf version required.
 AC_PREREQ([2.69])
+
+# todo: Help! I cannot find an off-the-shelf Gnu solution for resolving the 
+# path delimiter (directory separator) across POSIX and MSWIN file systems.
+# PATH_DELIMITER is used to effect file path structure to distinguish from 
+# PATH_SEPARATOR, which effects the PATH environment variable structure.
+# @todo: MSWIN conditional logic
+AC_DEFINE([PATH_DELIMITER], ["/"], [POSIX file/directory path separator])
 
 # Where to generate output; srcdir location.
 AC_CONFIG_HEADERS([inc/config.h:config.in])

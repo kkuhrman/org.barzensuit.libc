@@ -24,7 +24,8 @@
 # @todo: DISTCHECK_CONFIGURE_FLAGS
 
 # Include Gnu Lib macros in distribution
-EXTRA_DIST = m4/gnulib-cache.m4
+EXTRA_DIST = 
+EXTRA_DIST += m4/gnulib-cache.m4
 
 # automake will search for MakefileS in the following subdirs.
 SUBDIRS = lib src tests
