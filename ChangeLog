@@ -1,0 +1,6 @@
+2017-02-01  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* configure.ac Version 0.1.0 support for libtool, Gnu Lib and unit tests
+	* ChangeLog Initial check in
+	* bzensock.c Opens and closes a local socket
+
