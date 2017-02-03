@@ -19,10 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+
+/* libzenc includes */
 
 int main (int argc, char *argv[])
 {

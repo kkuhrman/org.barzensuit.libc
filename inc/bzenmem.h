@@ -22,6 +22,9 @@
 #ifndef _BZENLIBC_MEM_H_
 #define _BZENLIBC_MEM_H_
 
+#include <config.h>
+#include "xsize.h"
+
 /**
  * Allocate N bytes of memory dynamically, with error checking.
  *
@@ -30,5 +33,18 @@
  * @return void* Pointer to allocated block of memory.
  */
 void* bzen_malloc(size_t n);
+
+/**
+ * Reallocate a block at p of pn objects of s bytes each.
+ *
+ * @see x2nrealloc() in gnulib/xalloc.h
+ *
+ * @param void* p Pointer to memory block to reallocate.
+ * @param size_t* pn New number of allocated objects.
+ * @param size_t s Size of object.
+ *
+ * @return void* Pointer to the new block.
+ */
+void* bzen_realloc (void* p, size_t* pn, size_t s);
 
 #endif /* _BZENLIBC_MEM_H_ */

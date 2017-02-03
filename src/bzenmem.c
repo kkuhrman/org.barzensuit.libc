@@ -26,5 +26,13 @@
 /* Allocate N bytes of memory dynamically, with error checking. */
 void* bzen_malloc(size_t n) 
 {
+  /* @todo: manage cleanup of heap. */
   return xmalloc(n);
+}
+
+/* Reallocate a block at p of pn objects of s bytes each. */
+void* bzen_realloc (void* p, size_t* pn, size_t s) 
+{
+  /* @todo: manage cleanup of heap. */
+  return x2nrealloc(p, pn, s);
 }

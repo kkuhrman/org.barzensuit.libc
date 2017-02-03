@@ -35,7 +35,6 @@ LDADD = ../src/libbzenc.la
 check_PROGRAMS = \
 	bzentest_char \
 	bzentest_environment \
-	bzentest_socket_create_inet \
 	bzentest_socket_create_local \
 	bzentest_socket_fail \
 	bzentest_ut
@@ -43,16 +42,14 @@ check_PROGRAMS = \
 TESTS = \
 	bzentest_char \
 	bzentest_environment \
-	bzentest_socket_create_inet \
 	bzentest_socket_create_local \
 	bzentest_socket_fail \
 	bzentest_ut
 
 TESTS_ENVIRONMENT = \
-	BZENTEST_TEMP_DIR=$(datarootdir)/bzentest; \
-	export BZENTEST_TEMP_DIR;
-	BZENTEST_SOCKET_LOCAL_ADDR=bzentestsock; \
-	export BZENTEST_SOCKET_LOCAL_ADDR;
+	BZENTEST_TEMP_DIR=$(datarootdir)/bzentest \
+	BZENTEST_SOCKET_LOCAL_ADDR="bzentestsock"; \
+	export BZENTEST_TEMP_DIR BZENTEST_SOCKET_LOCAL_ADDR;
 
 EXTRA_DIST = $(TESTS)
 

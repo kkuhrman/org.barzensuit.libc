@@ -26,11 +26,70 @@
 
 #include <errno.h>
 #include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+/* libzenc includes */
 #include "bzenchar.h"
 
 /* A default prefix for things such as local addresses. */
 const char* BZENSOCK_PREFIX = "BZENSOCK_";
 #define BZENSOCK_PREFIX BZENSOCK_PREFIX
+
+/* Grow socket address registry by this size when space is needed. */
+const int BZENSOCK_REGISTRY_PAGE_SIZE = 1;
+#define BZENSOCK_REGISTRY_PAGE_SIZE BZENSOCK_REGISTRY_PAGE_SIZE
+
+/**
+ * @typedef bzen_sockaddr Extended socket address data container.
+ *
+ * @property char* name Given (internal) name for socket address.
+ * @property int socket_fd File descriptor returned by socket().
+ * @property struct sockaddr* address Actual address of socket.
+ */
+struct bzen_sockaddr_ext 
+{
+  char* name;
+  int socket_fd;
+  struct sockaddr* address;
+} bzen_sockaddr;
+
+/**
+ * Checks if socket at local address (file) is accessible.
+ * 
+ * @param const char* filename The local socket 'address'.
+ * @param int how R_OK, W_OK, X_OK, F_OK (exists).
+ * 
+ * @return 0 if access is permitted in given mode, otherwise -1.
+ */
+int bzen_socket_access_local(const char* filename, int how);
+
+/**
+ * Clone the a local socket address.
+ * 
+ * @param struct sockaddr_un* address The address to clone.
+ *
+ * @return struct sockaddr_un* The cloned address.
+ */
+struct sockaddr_un* bzen_socket_clone_address_un(struct sockaddr_un* address);
+
+/**
+ * Clone the an Internet IPv4  socket address.
+ * 
+ * @param struct sockaddr_in* address The address to clone.
+ *
+ * @return struct sockaddr_in* The cloned address.
+ */
+struct sockaddr_in* bzen_socket_clone_address_in(struct sockaddr_in* address);
+
+/**
+ * Clone the an Internet IPv6 socket address.
+ * 
+ * @param struct sockaddr_in6* address The address to clone.
+ *
+ * @return struct sockaddr_in6* The cloned address.
+ */
+struct sockaddr_in6* bzen_socket_clone_address_in6(struct sockaddr_in6* address);
 
 /**
  * Close given socket on target OS.
@@ -81,14 +140,45 @@ int bzen_socket_listen_inet(int style,
 			    int format);
 
 /**
+ * Create a local socket address.
+ * 
+ * @param const char* name Name socket address is registered under.
+ *
+ * @return struct sockaddr_un* The newly address.
+ */
+struct sockaddr_un* bzen_socket_create_address_un(const char* name);
+
+/**
  * Open a socket to listen on local address (server).
  *
  * @param int style Specifies the communication style.
  * @param int protocol Designates the specific protocol.
- * @param const char* filename Reserved - should be NULL.
+ * @param const char* filename The local socket 'address'.
  *
  * @return int File descriptor for the newly created socket.
  */
 int bzen_socket_listen_local(int style, int protocol, const char* filename);
+
+/**
+ * Stores given socket address in memory.
+ *
+ * @param const char* name Internal name to register socket address under.
+ * @param int socket_fd File descriptor given by socket().
+ * @param struct sockaddr* address Socket address.
+ *
+ * @return int 0 if socket address is registered, otherwise -1.
+ */
+int bzen_socket_register_address(const char* name, 
+				 int socket_fd, 
+				 struct sockaddr* address);
+
+/**
+ * Fetch socket address from internal registry in memory.
+ *
+ * @param const char* name Name socket address is registered under.
+ *
+ * @return struct sockaddr* Registered socket address or NULL.
+ */
+struct bzen_sockaddr_ext* bzen_socket_register_address_fetch(const char* name);
 
 #endif /* _BZENLIBC_SOCK_H_ */
