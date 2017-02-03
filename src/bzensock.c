@@ -203,6 +203,7 @@ int bzen_socket_listen_local(int style, int protocol, const char* filename)
   if (style == SOCK_DGRAM)
     {
       socket_addr = (struct sockaddr*)bzen_socket_create_address_un(filename);
+      socket_addr_size = SUN_LEN((struct sockaddr_un*)socket_addr);
     }
   /* @todo: else SOCK_STREAM */
   
