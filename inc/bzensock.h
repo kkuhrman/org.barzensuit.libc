@@ -36,23 +36,40 @@
 const char* BZENSOCK_PREFIX = "BZENSOCK_";
 #define BZENSOCK_PREFIX BZENSOCK_PREFIX
 
-/* Grow socket address registry by this size when space is needed. */
-const int BZENSOCK_REGISTRY_PAGE_SIZE = 1;
-#define BZENSOCK_REGISTRY_PAGE_SIZE BZENSOCK_REGISTRY_PAGE_SIZE
+/* socket is on server or client end of connection. */
+const int BZENSOCK_SERVER = 0x00000100;
+const int BZENSOCK_CLIENT = 0x00001000;
+#define BZENSOCK_SERVER BZENSOCK_SERVER
+#define BZENSOCK_CLIENT BZENSOCK_CLIENT
 
 /**
- * @typedef bzen_sockaddr Extended socket address data container.
+ * Create a local socket address.
+ * 
+ * @param const char* name Name socket address is registered under.
  *
- * @property char* name Given (internal) name for socket address.
- * @property int socket_fd File descriptor returned by socket().
- * @property struct sockaddr* address Actual address of socket.
+ * @return struct sockaddr_un* The newly created address.
  */
-struct bzen_sockaddr_ext 
-{
-  char* name;
-  int socket_fd;
-  struct sockaddr* address;
-} bzen_sockaddr;
+struct sockaddr_un* bzen_socket_address_un(const char* name);
+
+/**
+ * Open local socket for sending individually-addressed packets unreliably.
+ *
+ * @param const char* filename The local socket 'address'.
+ * @param int protocol Designates the specific protocol.
+ *
+ * @return int File descriptor for the newly created socket.
+ */
+int bzen_socket_dgram_local(const char* filename, int protocol);
+
+/**
+ * Accepts a connection request from a local client.
+ *
+ * @param int socket_fd File descriptor of server accepting the connection.
+ * @param const char* filename Local address of client.
+ *
+ * @return int File descriptor of new, connected server-side socket.
+ */
+/* int accept (int socket_fd, const char* filename); */
 
 /**
  * Checks if socket at local address (file) is accessible.
@@ -63,15 +80,6 @@ struct bzen_sockaddr_ext
  * @return 0 if access is permitted in given mode, otherwise -1.
  */
 int bzen_socket_access_local(const char* filename, int how);
-
-/**
- * Clone the a local socket address.
- * 
- * @param struct sockaddr_un* address The address to clone.
- *
- * @return struct sockaddr_un* The cloned address.
- */
-struct sockaddr_un* bzen_socket_clone_address_un(struct sockaddr_un* address);
 
 /**
  * Clone the an Internet IPv4  socket address.
@@ -92,35 +100,24 @@ struct sockaddr_in* bzen_socket_clone_address_in(struct sockaddr_in* address);
 struct sockaddr_in6* bzen_socket_clone_address_in6(struct sockaddr_in6* address);
 
 /**
- * Close given socket on target OS.
- * 
- * Specify SHUT_RD for 'how' to stop receiving data for this socket. 
- * In this case, if further data arrives, reject it.
- *
- * Specify SHUT_WR for 'how' to stop trying to transmit data from this 
- * socket. Discard any data waiting to be sent. Stop looking for 
- * acknowledgement of data already sent; don’t retransmit it if it is lost.
- * 
- * Specify SHUT_RDWR for 'how' to stop both reception and transmission.
- * 
- * @see bzen_create_socket
- *
- * @param int descriptor File descriptor of socket to close.
- * @param int how SHUT_RD | SHUT_WR | SHUT_RDWR
- * 
- * @return int EXIT_SUCCESS | EXIT_FAILURE.
- */
-int bzen_socket_close(int descriptor, int how);
-
-/**
  * Open a socket to connect to socket server (client).
  *
- * @param int socket_fd File descriptor of server socket.
- * @param const char* address Address of server socket.
+ * @param const char* name Name socket was registered under.
  *
  * @return int File descriptor for the newly created socket.
  */
-int bzen_socket_connect(int socket_fd, const char* address);
+int bzen_socket_connect(const char* name);
+
+/**
+ * Connect to socket listening on local address (server).
+ *
+ * @param int style Specifies the communication style.
+ * @param int protocol Designates the specific protocol.
+ * @param const char* filename The local socket 'address'.
+ *
+ * @return int File descriptor for newly created client socket.
+ */
+int bzen_socket_connect_local(int style, int protocol, const char* filename);
 
 /**
  * Open a socket to listen on network address (server).
@@ -140,16 +137,19 @@ int bzen_socket_listen_inet(int style,
 			    int format);
 
 /**
- * Create a local socket address.
- * 
- * @param const char* name Name socket address is registered under.
+ * Open a socket on local address and put in listening mode (server).
  *
- * @return struct sockaddr_un* The newly address.
+ * @param int style Specifies the communication style.
+ * @param int protocol Designates the specific protocol.
+ * @param const char* filename The local socket 'address'.
+ * @param int qlen Length of queue for pending connections.
+ *
+ * @return int File descriptor for the newly created socket.
  */
-struct sockaddr_un* bzen_socket_create_address_un(const char* name);
+int bzen_socket_listen_local(int style, int protocol, const char* filename, int qlen);
 
 /**
- * Open a socket to listen on local address (server).
+ * Open a socket and register on local address.
  *
  * @param int style Specifies the communication style.
  * @param int protocol Designates the specific protocol.
@@ -157,28 +157,72 @@ struct sockaddr_un* bzen_socket_create_address_un(const char* name);
  *
  * @return int File descriptor for the newly created socket.
  */
-int bzen_socket_listen_local(int style, int protocol, const char* filename);
+static int bzen_socket_open_local(int style, int protocol, const char* filename);
 
 /**
- * Stores given socket address in memory.
+ * Receive data from connected peer.
  *
- * @param const char* name Internal name to register socket address under.
- * @param int socket_fd File descriptor given by socket().
- * @param struct sockaddr* address Socket address.
- *
- * @return int 0 if socket address is registered, otherwise -1.
+ * @param in socket_fd File descriptor of receiving socket.
+ * @param void* buffer Pointer to buffer serving as data sink.
+ * @param size_t data_size Number of bytes to read.
+ * @param int flags MSG_OOB | MSG_PEEK | MSG_DONTROUTE | 0.
+ * 
+ * @return size_t Number of bytes received.
  */
-int bzen_socket_register_address(const char* name, 
-				 int socket_fd, 
-				 struct sockaddr* address);
+ssize_t bzen_socket_receive(int socket_fd, void* data, size_t data_size, int flags);
 
 /**
- * Fetch socket address from internal registry in memory.
+ * Receive data from connectionless peer.
  *
- * @param const char* name Name socket address is registered under.
+ * The address and address size parameters are optional and only used if it is 
+ * necessary to know the address of the sender. Otherwise bzen_socket_receive()
+ * should be used.
  *
- * @return struct sockaddr* Registered socket address or NULL.
+ * @param in socket_fd File descriptor of receiving socket.
+ * @param void* buffer Pointer to buffer serving as data sink.
+ * @param size_t data_size Number of bytes to read.
+ * @param int flags MSG_OOB | MSG_PEEK | MSG_DONTROUTE | 0.
+ * @param struct sockaddr* address Address of sending socket.
+ * @param socklen_t* address_size Size in bytes of sending address.
+ * 
+ * @return size_t Number of bytes received.
  */
-struct bzen_sockaddr_ext* bzen_socket_register_address_fetch(const char* name);
+ssize_t bzen_socket_receive_from(int socket_fd, 
+				 void* data, 
+				 size_t data_size, 
+				 int flags,
+				 struct sockaddr* address,
+				 socklen_t* address_size);
+
+/**
+ * Send data to connected peer.
+ *
+ * @param int socket_fd File descriptor of transmitting socket.
+ * @param const void* data Pointer to buffer containing transmission data.
+ * @param size_t data_size Size in bytes of data to transmit.
+ * @param int flags MSG_OOB | MSG_DONTROUTE | 0
+ *
+ * @return size_t Number of bytes transmitted.
+ */
+ssize_t bzen_socket_send(int socket_fd, const void* data, size_t data_size, int flags);
+
+/**
+ * Send data to connectionless peer.
+ *
+ * @param int socket_fd File descriptor of transmitting socket.
+ * @param const void* data Pointer to buffer containing transmission data.
+ * @param size_t data_size Size in bytes of data to transmit.
+ * @param int flags MSG_OOB | MSG_DONTROUTE | 0
+ * @param struct sockaddr* address Address of destination socket.
+ * @param socklen_t address_size Size in bytes of destination address.
+ *
+ * @return size_t Number of bytes transmitted.
+ */
+ssize_t bzen_socket_send_to(int socket_fd, 
+			   const void* data, 
+			   size_t data_size, 
+			   int flags,
+			   struct sockaddr* address, 
+			   socklen_t address_size);
 
 #endif /* _BZENLIBC_SOCK_H_ */

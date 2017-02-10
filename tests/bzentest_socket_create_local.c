@@ -35,110 +35,123 @@
 #include "bzentest.h"
 #include "bzensock.h"
 
+/* A random sequence of characters to transmit as test data. */
+const char* BZENSOCK_TEST_DATA = "e5a8f08d-d640-4523-8b84-99602f2a60b1";
+#define BZENSOCK_TEST_DATA BZENSOCK_TEST_DATA
+
+/* Default size of transmission buffers. */
+const size_t BZENSOCK_DEFAULT_BUFFER_SIZE = 1024;
+#define BZENSOCK_DEFAULT_BUFFER_SIZE BZENSOCK_DEFAULT_BUFFER_SIZE
+
 int main (int argc, char *argv[])
 {
   int result = BZEN_TEST_EVAL_PASS;
   int style = SOCK_DGRAM; /* SOCK_STREAM; */
   int protocol = 0;
-  int socket_fd;
-  int check;
   char* socket_dir;
-  char* socket_file;
-  char* socket_suffix;
-  char* socket_full_path;
-  int socket_full_path_size;
+
+  size_t bytes_out;
+  size_t bytes_in;
+  size_t data_size;
+  int flags = 0;
+  int check;
   
-  /* generate local socket address from environment variables. */
+  /* server socket */
+  int server_socket_fd;
+  const char* server_socket_file = "lserver";
+  char* server_socket_full_path;
+  int server_socket_full_path_size;
+  struct sockaddr_un* server_address;
+  ssize_t server_address_size;
+  char s_buf[BZENSOCK_DEFAULT_BUFFER_SIZE];
+
+  /* client socket*/
+  int client_socket_fd;
+  const char* client_socket_file = "lclient";
+  char* client_socket_full_path;
+  int client_socket_full_path_size;
+  struct sockaddr_un* client_address;
+  ssize_t client_address_size;
+  char c_buf[BZENSOCK_DEFAULT_BUFFER_SIZE];
+
+  /* server address. */
   socket_dir = getenv("BZENTEST_TEMP_DIR");
-  socket_file = getenv("BZENTEST_SOCKET_LOCAL_ADDR");
-  socket_full_path_size = xcast_size_t(strlen(socket_dir) + 
-    strlen(socket_file) + 
+  server_socket_full_path_size = xcast_size_t(strlen(socket_dir) + 
+    strlen(server_socket_file) + 
     strlen(PATH_DELIMITER) + 1);
-  socket_full_path = (char*)bzen_malloc(socket_full_path_size);
-  sprintf(socket_full_path, "%s%s%s", 
+  server_socket_full_path = (char*)bzen_malloc(server_socket_full_path_size);
+  sprintf(server_socket_full_path, "%s%s%s", 
 	  socket_dir,
 	  PATH_DELIMITER,
-	  socket_file);
+	  server_socket_file);
+  server_address = bzen_socket_address_un(server_socket_full_path);
+  server_address_size = SUN_LEN(server_address);
 
-  /* Test address management functions*/
-  struct sockaddr_un* address = bzen_socket_create_address_un(socket_full_path);
-  if (0 != strcmp(socket_full_path, address->sun_path))
-    {
-      fprintf(stderr, "\nbzen_socket_create_address_un path mismatch:\n%s != \n%s\n",
-  		socket_full_path, address->sun_path);
-      result = BZEN_TEST_EVAL_FAIL;
-      goto END_TEST;
-    }
-  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_int("bzen_socket_create_address_un path()",
-						    address->sun_family,
-						    AF_LOCAL,
-						    NULL))
-    {
-      result = BZEN_TEST_EVAL_FAIL;
-      goto END_TEST;
-    }
-  struct sockaddr_un* clone = bzen_socket_clone_address_un(address);
-if (0 != strcmp(socket_full_path, clone->sun_path))
-    {
-      fprintf(stderr, "\nbzen_socket_clone_address_un path mismatch:\n%s != \n%s\n",
-  		socket_full_path, clone->sun_path);
-      result = BZEN_TEST_EVAL_FAIL;
-      goto END_TEST;
-    }
-  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_int("bzen_socket_clone_address_un path()",
-						    clone->sun_family,
-						    AF_LOCAL,
-						    NULL))
-    {
-      result = BZEN_TEST_EVAL_FAIL;
-      goto END_TEST;
-    }
+  /* client address. */
+  client_socket_full_path_size = xcast_size_t(strlen(socket_dir) + 
+    strlen(client_socket_file) + 
+    strlen(PATH_DELIMITER) + 1);
+  client_socket_full_path = (char*)bzen_malloc(client_socket_full_path_size);
+  sprintf(client_socket_full_path, "%s%s%s", 
+	  socket_dir,
+	  PATH_DELIMITER,
+	  client_socket_file);
+  client_address = bzen_socket_address_un(client_socket_full_path);
+  client_address_size = SUN_LEN(client_address);
 
-  /* create the socket */
-  socket_fd = bzen_socket_listen_local(style, protocol, socket_full_path);
-  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_listen_local()",
-						    (socket_fd < 0),
+  /*TEST SET #1 - Connectionless, local socket pair (datagram). */
+  /* create server socket */
+  server_socket_fd = bzen_socket_dgram_local(server_socket_full_path, protocol);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_dgram_local()",
+						    (server_socket_fd < 0),
 						    0,
-						    NULL))
+						    "\n\tserver socket\n"))
     {
-      fprintf(stderr, "failed to open local socket; return: %d\n", (int) socket_fd);
+      fprintf(stderr, "failed to open local socket; return: %d\n", (int) server_socket_fd);
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
+    }
+
+  /* create client socket. */
+  client_socket_fd = bzen_socket_dgram_local(client_socket_full_path, protocol);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_dgram_local()",
+  						    (client_socket_fd < 0),
+  						    0,
+  						    "\n\tclient socket\n"))
+    {
+      fprintf(stderr, "failed to open local socket; return: %d\n", (int) client_socket_fd);
       result = BZEN_TEST_EVAL_FAIL;
       goto END_TEST;
     }
   
-  /* bzen_socket_listen_local() should have registered socket address data. */
-  struct bzen_sockaddr_ext* sockaddr_ext =
-    bzen_socket_register_address_fetch(socket_full_path);
-  if (sockaddr_ext == NULL)
-    {
-      fprintf(stderr, "Failed to fetch registered extended socket address data for %s.", socket_full_path);
-      result = BZEN_TEST_EVAL_FAIL;
-      goto END_TEST;
-    }
-  if (0 != strcmp(socket_full_path, sockaddr_ext->name))
-    {
-      fprintf(stderr, "\nbzen_socket_register_address_fetch name mismatch:\n%s != \n%s\n",
-  		socket_full_path, address->sun_path);
-      result = BZEN_TEST_EVAL_FAIL;
-      goto END_TEST;
-    }
-  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_int("bzen_socket_register_address_fetch()",
-  						    sockaddr_ext->socket_fd,
-  						    socket_fd,
-  						    " - socket file descriptor mismatch.\n"))
+  /* client send, server read */
+  data_size = xcast_size_t(strlen(BZENSOCK_TEST_DATA));
+  bytes_out = bzen_socket_send_to(client_socket_fd,
+  				  BZENSOCK_TEST_DATA,
+  				  data_size,
+  				  flags,
+  				  (struct sockaddr*)client_address,
+  				  client_address_size);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_send_to()",
+  						    (bytes_out == data_size),
+  						    1,
+  						    "\n\tclient send\n"))
     {
       result = BZEN_TEST_EVAL_FAIL;
       goto END_TEST;
     }
 
-  /* @todo: create client socket. */
-  
-  /* @todo: client send, server read */
-  
-  /* @todo: server send, client read */
-    
-  /* Close the socket. */
-  check = bzen_socket_close(socket_fd, SHUT_RDWR);
+  /* Close the sockets. */
+  check = bzen_socket_close(client_socket_fd, SHUT_RDWR);
+  if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_close()",
+						    (check == 0),
+						    1,
+						    NULL)) 
+    {
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
+    }
+  check = bzen_socket_close(server_socket_fd, SHUT_RDWR);
   if (BZEN_TEST_EVAL_FAIL == bzen_test_eval_fn_bool("bzen_socket_close()",
 						    (check == 0),
 						    1,

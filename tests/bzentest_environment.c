@@ -38,13 +38,13 @@ int main (int argc, char *argv[])
   if (testdir == NULL)
   {
     perror("opendir");
+    fprintf (stderr, "socket temp dir = %s\n", destdir);
+    result = -1;
     goto END_TEST;
   }
   
   /* Close the test directory. */
-  closedir(destdir);
-  
-  fprintf (stderr, "socket temp dir = %s\n", destdir);
+  closedir(testdir);
 
 END_TEST:
   return result;
