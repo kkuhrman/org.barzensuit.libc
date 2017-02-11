@@ -35,7 +35,8 @@
 struct sockaddr_un* bzen_socket_address_un(const char* name)
 {
   struct sockaddr_un* address;
-  
+  size_t address_alloc_size;
+
   if (name == NULL)
     {
       fprintf(stderr, "\n\tCannot create named socket with NULL filename.\n");
@@ -44,9 +45,9 @@ struct sockaddr_un* bzen_socket_address_un(const char* name)
     }
 
   /* Allocate memory for the data structure. */  
-  size_t address_size = xcast_size_t(sizeof(struct sockaddr_un));  
-  address = (struct sockaddr_un*)bzen_malloc(address_size);
-  memset(address, 0, address_size);
+  address_alloc_size = xcast_size_t(sizeof(struct sockaddr_un));  
+  address = (struct sockaddr_un*)bzen_malloc(address_alloc_size);
+  memset(address, 0, address_alloc_size);
 
   /* Allocate memory with data structure for the path. */
   size_t path_size = xcast_size_t(strlen(name));
@@ -69,41 +70,17 @@ struct sockaddr_un* bzen_socket_address_un(const char* name)
   return address;
 }
 
-/* Open local socket for sending individually-addressed packets unreliably. */
-int bzen_socket_dgram_local(const char* filename, int protocol)
+/* Bind a socket to the given address. */
+int bzen_socket_bind(int socket_fd, 
+		     struct sockaddr* address, 
+		     socklen_t address_size)
 {
-  struct sockaddr* address;
-  size_t address_size;
-  size_t path_size;
-  int bind_result;
-  int socket_fd;
-
-  /* Populate socket address. */
-  address = (struct sockaddr*)bzen_socket_address_un(filename);
-  if (address == NULL)
-    {
-      socket_fd = -1;
-      goto SOCK_FAIL;
-    }
-  address_size = SUN_LEN((struct sockaddr_un*)address);
-
-  /* Create the socket. */
-  socket_fd = socket(PF_LOCAL, SOCK_DGRAM, protocol);
-  if (socket_fd < 0) 
-    {
-      perror("socket");
-      shutdown(socket_fd, SHUT_RDWR);
-      socket_fd = -1;
-      goto SOCK_FAIL;
-    }
-
-  /* OK if this fails. Avoid socket in use error. */
-  unlink(filename);
-
-  bind_result = bind(socket_fd,
+  int result;
+  
+  result = bind(socket_fd,
 		     address, 
 		     address_size);
-  if (bind_result < 0)
+  if (result < 0)
     {
       perror("bind");
       fprintf(stderr, "\n\tfd: %d\n\taddress: %s\n\tsize: %d\n",
@@ -111,41 +88,12 @@ int bzen_socket_dgram_local(const char* filename, int protocol)
   	      address->sa_data,
   	      address_size);
       shutdown(socket_fd, SHUT_RDWR);
-      socket_fd = -1;
-      goto SOCK_FAIL;
+      goto BIND_FAIL;
     }
 
-  /* @todo: thread for transmissions */
+ BIND_FAIL:
 
-SOCK_FAIL:
-
-  return socket_fd;
-}
-
-/**
- * Checks if socket at local address (file) is accessible.
- * 
- * @param const char* filename The local socket 'address'.
- * @param int how R_OK, W_OK, X_OK, F_OK (exists).
- * 
- * @return 0 if access is permitted in given mode, otherwise -1.
- */
-int bzen_socket_access_local(const char* filename, int how) 
-{
-  int result = access(filename, how);
   return result;
-}
-
-/* Clone the an Internet IPv4  socket address. */
-struct sockaddr_in* bzen_socket_clone_address_in(struct sockaddr_in* address)
-{
-  return NULL;
-}
-
-/* Clone the an Internet IPv6 socket address. */
-struct sockaddr_in6* bzen_socket_clone_address_in6(struct sockaddr_in6* address)
-{
-  return NULL;
 }
 
 /* Close given socket on target OS. */
@@ -175,140 +123,13 @@ int bzen_socket_close(int socket_fd, int how)
   return result;
 }
 
-/* Connect to socket listening on local address (server). */
-int bzen_socket_connect_local(int style, int protocol, const char* filename)
-{
-  struct sockaddr* socket_addr;
-  size_t socket_addr_size;
-  int connect_result;
-  int socket_fd;
-
-  /* Open and register the socket on given address. */
-  socket_fd = bzen_socket_open_local(style, protocol, filename);
-  if (socket_fd < 0)
-    {
-      socket_fd = -1;
-      goto SOCK_FAIL;
-    }
-
-  /* Populate socket address. */
-  if (style == SOCK_DGRAM)
-    {
-      socket_addr = (struct sockaddr*)bzen_socket_address_un(filename);
-      socket_addr_size = SUN_LEN((struct sockaddr_un*)socket_addr);
-    }
-  /* @todo: SOCK_STREAM */
-
-  connect_result = connect(socket_fd, socket_addr, socket_addr_size);
-  if (connect_result < 0)
-    {
-      perror("connect");
-      fprintf(stderr, "\n\tfd: %d\n\taddress: %s\n\tsize: %d\n",
-      	      socket_fd,
-      	      socket_addr->sa_data,
-      	      socket_addr_size);
-    }
-
- SOCK_FAIL:
-
-  return socket_fd;
-}
-
-/* Open a socket to listen on network address (server). */
-int bzen_socket_listen_inet(int style, 
-			    int protocol, 
-			    const char* host,
-			    unsigned short int port,
-			    int format)
-{
-}
-
-/* Open a socket to listen on local address (server).*/
-int bzen_socket_listen_local(int style, int protocol, const char* filename, int qlen)
-{
-  struct sockaddr* socket_addr;
-  size_t socket_addr_size;
-  int bind_result;
-  int socket_fd;
-
-  /* Open and register the socket on given address. */
-  socket_fd = bzen_socket_open_local(style, protocol, filename);
-  if (socket_fd < 0) 
-    {
-      socket_fd = -1;
-      goto SOCK_FAIL;
-    }
-
-  /* Populate socket address. */
-  if (style == SOCK_DGRAM)
-    {
-      socket_addr = (struct sockaddr*)bzen_socket_address_un(filename);
-      socket_addr_size = SUN_LEN((struct sockaddr_un*)socket_addr);
-    }
-  /* @todo: else SOCK_STREAM */
-
-  /* OK if this fails. Avoid socket in use error. */
-  unlink(filename);
-
-  bind_result = bind(socket_fd,
-		     socket_addr, 
-		     socket_addr_size);
-  if (bind_result < 0)
-    {
-      perror("bind");
-      fprintf(stderr, "\n\tfd: %d\n\taddress: %s\n\tsize: %d\n",
-  	      socket_fd,
-  	      socket_addr->sa_data,
-  	      socket_addr_size);
-      shutdown(socket_fd, SHUT_RDWR);
-      socket_fd = -1;
-      goto SOCK_FAIL;
-    }
-
-  /* listen() is only supported on connection-oriented sockets. */
-  if (style != SOCK_DGRAM)
-    {
-      int ready = listen(socket_fd, qlen);
-      if (ready < 0)
-  	{
-  	  perror("listen");
-  	  shutdown(socket_fd, SHUT_RDWR);
-  	  socket_fd = -1;
-  	  goto SOCK_FAIL;
-  	}
-    }
-
- SOCK_FAIL:
-
-  return socket_fd;
-}
-
-/* Open a socket and register on local address. */
-static int bzen_socket_open_local(int style, int protocol, const char* filename)
+/* Open a socket. */
+int bzen_socket_open(int namespace, int style, int protocol)
 {
   int socket_fd;
-  int af_supported;
-  
-  /* Validate communication style is supported. */
-  switch (style)
-  {
-  default:
-    af_supported = 0;
-    break;
-   case SOCK_DGRAM:
-   case SOCK_STREAM:
-     af_supported = 1;
-     break;
-  }
-  
-  if (0 == af_supported)
-    {
-      socket_fd = -1;
-      goto SOCK_FAIL;
-    }
-  
+
   /* Create the socket. */
-  socket_fd = socket(PF_LOCAL, style, protocol);
+  socket_fd = socket(namespace, style, protocol);
   if (socket_fd < 0) 
     {
       perror("socket");
@@ -317,7 +138,7 @@ static int bzen_socket_open_local(int style, int protocol, const char* filename)
       goto SOCK_FAIL;
     }
 
-SOCK_FAIL:
+ SOCK_FAIL:
 
   return socket_fd;
 }

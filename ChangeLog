@@ -1,4 +1,9 @@
-2017-02-03  Karl Kuhrman  <kkuhrman@pelican>
+
+2017-02-11  Karl Kuhrman  <kkuhrman@barzensuit.org>
+	* configure.ac: advanced version number to 0.1.2
+	* src/bzensock.c: refactored sockets API to resemble corresponding Gnu fns.
+	
+2017-02-03  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac: advanced version number to 0.1.1
 	* src/bzensock.c: unit tested code for dynamic allocation of sockaddr_un

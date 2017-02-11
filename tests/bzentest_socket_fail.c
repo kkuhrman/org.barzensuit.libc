@@ -38,7 +38,7 @@ int main (int argc, char *argv[])
   int test_result;
 
   /* Expected FAIL on create socket w. bogus address family. */
-  socket_fd = bzen_socket_listen_local(NULL, 0, NULL, 1);
+  socket_fd = bzen_socket_open(NULL, 0, NULL);
   if (1 != bzen_test_eval_fn_bool("bzen_create_socket", 0, ((socket_fd < 0) && (errno != EPROTONOSUPPORT)), NULL))
   {
     fprintf(stderr, "Expected FAIL on create socket w. bogus address family.");
@@ -48,7 +48,7 @@ int main (int argc, char *argv[])
   bzen_socket_close(socket_fd, SHUT_RDWR);
 
   /* Expected FAIL on create socket w. bogus protocol. */
-  socket_fd = bzen_socket_listen_local(SOCK_DGRAM, -1, NULL, 1);
+  socket_fd = bzen_socket_open(SOCK_DGRAM, -1, NULL);
   if (1 != bzen_test_eval_fn_bool("bzen_create_socket", 0, ((socket_fd < 0) && (errno != EPROTONOSUPPORT)), NULL))
   {
     fprintf(stderr, "Expected FAIL on create socket w. bogus protocol.");

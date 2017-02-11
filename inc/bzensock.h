@@ -2,7 +2,21 @@
  * @file:	bzensock.h
  * @brief:	Portability API for POSIX/Windows sockets.
  * 
- * @see:	ftp://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_chapter/libc_16.html
+ * @todo: V. 0.1.2
+ * Wrappers only. Support for POSIX connectionless sockets only.
+ * socket(), bind(), send(), sendto(), recv(), recvfrom(), shutdown()
+ * sockaddr_un
+ *
+ * @todo: V. 0.1.3
+ * Wrappers only. Support for POSIX Internet sockets added.
+ * listen(), accept(), connect()
+ * sockaddr_in
+ *
+ * @todo: V. 0.1.4
+ * threadsafe support and clean up
+ *
+ * @todo: V. 0.1.5
+ * add sockaddr_in6 and host names support
  *
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
  * @license:	GPLv3+: GNU GPL version 3
@@ -46,118 +60,53 @@ const int BZENSOCK_CLIENT = 0x00001000;
  * Create a local socket address.
  * 
  * @param const char* name Name socket address is registered under.
+ * @param socklen_t* address_size Optional, returns size of address.
  *
  * @return struct sockaddr_un* The newly created address.
  */
 struct sockaddr_un* bzen_socket_address_un(const char* name);
 
 /**
- * Open local socket for sending individually-addressed packets unreliably.
- *
- * @param const char* filename The local socket 'address'.
- * @param int protocol Designates the specific protocol.
- *
- * @return int File descriptor for the newly created socket.
+ * @todo: struct sockaddr_in* bzen_socket_address_in(); 
  */
-int bzen_socket_dgram_local(const char* filename, int protocol);
 
 /**
- * Accepts a connection request from a local client.
- *
- * @param int socket_fd File descriptor of server accepting the connection.
- * @param const char* filename Local address of client.
- *
- * @return int File descriptor of new, connected server-side socket.
+ * @todo: struct sockaddr_in6* bzen_socket_adrdess_in6();
  */
-/* int accept (int socket_fd, const char* filename); */
 
 /**
- * Checks if socket at local address (file) is accessible.
+ * Bind a socket to the given address.
+ *
+ * @param int socket_fd 
+ * @param struct sockaddr* address
+ * @param socklen_t address_size
  * 
- * @param const char* filename The local socket 'address'.
- * @param int how R_OK, W_OK, X_OK, F_OK (exists).
- * 
- * @return 0 if access is permitted in given mode, otherwise -1.
+ * @return int 0 on success and -1 on failure. 
  */
-int bzen_socket_access_local(const char* filename, int how);
+int bzen_socket_bind(int socket_fd, 
+		     struct sockaddr* address, 
+		     socklen_t address_size);
 
 /**
- * Clone the an Internet IPv4  socket address.
- * 
- * @param struct sockaddr_in* address The address to clone.
+ * Close given socket.
  *
- * @return struct sockaddr_in* The cloned address.
+ * @param int socket_fd File descriptor of socket to shutdown.
+ * @param int how SHUT_RD | SHUT_WR | SHUT_RDWR
+ *
+ * @return int 0 on success and -1 on failure.
  */
-struct sockaddr_in* bzen_socket_clone_address_in(struct sockaddr_in* address);
+int bzen_socket_close(int socket_fd, int how);
 
 /**
- * Clone the an Internet IPv6 socket address.
- * 
- * @param struct sockaddr_in6* address The address to clone.
+ * Open a socket.
  *
- * @return struct sockaddr_in6* The cloned address.
+ * @param int namespace
+ * @param int style
+ * @param int protocol
+ *
+ * @return int File descriptor of the newly opened socket.
  */
-struct sockaddr_in6* bzen_socket_clone_address_in6(struct sockaddr_in6* address);
-
-/**
- * Open a socket to connect to socket server (client).
- *
- * @param const char* name Name socket was registered under.
- *
- * @return int File descriptor for the newly created socket.
- */
-int bzen_socket_connect(const char* name);
-
-/**
- * Connect to socket listening on local address (server).
- *
- * @param int style Specifies the communication style.
- * @param int protocol Designates the specific protocol.
- * @param const char* filename The local socket 'address'.
- *
- * @return int File descriptor for newly created client socket.
- */
-int bzen_socket_connect_local(int style, int protocol, const char* filename);
-
-/**
- * Open a socket to listen on network address (server).
- *
- * @param int style Specifies the communication style.
- * @param int protocol Designates the specific protocol.
- * @param const char* host IP address or FQDN.
- * @param unsigned short int port Port number.
- * @param int format IPv4 or IPv6.
- *
- * @return int File descriptor for the newly created socket.
- */
-int bzen_socket_listen_inet(int style, 
-			    int protocol, 
-			    const char* host,
-			    unsigned short int port,
-			    int format);
-
-/**
- * Open a socket on local address and put in listening mode (server).
- *
- * @param int style Specifies the communication style.
- * @param int protocol Designates the specific protocol.
- * @param const char* filename The local socket 'address'.
- * @param int qlen Length of queue for pending connections.
- *
- * @return int File descriptor for the newly created socket.
- */
-int bzen_socket_listen_local(int style, int protocol, const char* filename, int qlen);
-
-/**
- * Open a socket and register on local address.
- *
- * @param int style Specifies the communication style.
- * @param int protocol Designates the specific protocol.
- * @param const char* filename The local socket 'address'.
- *
- * @return int File descriptor for the newly created socket.
- */
-static int bzen_socket_open_local(int style, int protocol, const char* filename);
+int bzen_socket_open(int namespace, int style, int protocol);
 
 /**
  * Receive data from connected peer.
