@@ -42,3 +42,7 @@ Makefile.in
 # Linux swap files
 *~
 *.*~
+
+#some autotools stuff to ignore
+build-aux
+autom4te.cache

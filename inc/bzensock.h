@@ -39,6 +39,7 @@
 #define _BZENLIBC_SOCK_H_
 
 #include <errno.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -57,6 +58,29 @@ const int BZENSOCK_CLIENT = 0x00001000;
 #define BZENSOCK_CLIENT BZENSOCK_CLIENT
 
 /**
+ * Accept connection request.
+ *
+ * @param int socket_fd 
+ * @param struct sockaddr* address Optional, out
+ * @param socklen_t address_size Optional, out
+ * 
+ * @return int File descriptor of server side connection or -1.
+ */
+int bzen_socket_accept(int socket_fd, 
+		       struct sockaddr* address, 
+		       socklen_t address_size);
+
+/**
+ * Create an internet socket address.
+ * 
+ * @param uint32_t host Binary representation of IPv4 address.
+ * @param uint32_t port
+ *
+ * @return struct sockaddr_in*
+ */
+struct sockaddr_in* bzen_socket_address_in(uint32_t host, uint32_t port);
+
+/**
  * Create a local socket address.
  * 
  * @param const char* name Name socket address is registered under.
@@ -65,10 +89,6 @@ const int BZENSOCK_CLIENT = 0x00001000;
  * @return struct sockaddr_un* The newly created address.
  */
 struct sockaddr_un* bzen_socket_address_un(const char* name);
-
-/**
- * @todo: struct sockaddr_in* bzen_socket_address_in(); 
- */
 
 /**
  * @todo: struct sockaddr_in6* bzen_socket_adrdess_in6();
@@ -96,6 +116,29 @@ int bzen_socket_bind(int socket_fd,
  * @return int 0 on success and -1 on failure.
  */
 int bzen_socket_close(int socket_fd, int how);
+
+/**
+ * Request connection with  socket at  given address.
+ *
+ * @param int socket_fd 
+ * @param struct sockaddr* address
+ * @param socklen_t address_size
+ * 
+ * @return int 0 on success and -1 on failure. 
+ */
+int bzen_socket_connect(int socket_fd, 
+			struct sockaddr* address, 
+			socklen_t address_size);
+
+/**
+ * Enable connection requests on server socket.
+ *
+ * @param int socket_fd File decriptor of server socket.
+ * @param int queue_len Number of connection requests to accept.
+ *
+ * @return int 0 on success and -1 on failure.
+ */
+int bzen_socket_listen(int socket_fd, int queue_len);
 
 /**
  * Open a socket.

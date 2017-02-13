@@ -23,6 +23,12 @@
 #include "xalloc.h"
 #include "bzenmem.h"
 
+/* Free memory allocated dynamically. */
+void bzen_free(void* ptr)
+{
+  free(ptr);
+}
+
 /* Allocate N bytes of memory dynamically, with error checking. */
 void* bzen_malloc(size_t n) 
 {

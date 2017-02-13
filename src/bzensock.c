@@ -31,6 +31,48 @@
 #include "bzenmem.h"
 #include "bzensock.h"
 
+/* Accept connection request. */
+int bzen_socket_accept(int socket_fd, 
+		       struct sockaddr* address, 
+		       socklen_t address_size)
+{
+  int server_side_fd;
+  
+  server_side_fd = accept(socket_fd, address, address_size);
+  if (server_side_fd < 0)
+    {
+      perror("accept");
+      goto ACCEPT_FAIL;
+    }
+
+ ACCEPT_FAIL:
+
+  return server_side_fd;
+}
+
+/* Create an internet socket address. */
+struct sockaddr_in* bzen_socket_address_in(uint32_t host, uint32_t port)
+{
+  struct sockaddr_in* address;
+  size_t address_alloc_size;
+
+  /* Allocate memory for the data structure. */  
+  address_alloc_size = xcast_size_t(sizeof(struct sockaddr_in));  
+  address = (struct sockaddr_in*)bzen_malloc(address_alloc_size);
+  memset(address, 0, address_alloc_size);
+  address->sin_family = AF_INET;
+
+  /* convert binary address to network byte order */
+  address->sin_addr.s_addr = htonl(host);
+
+  /* convert port number to network byte order */
+  address->sin_port = htons(port);
+
+ ADDR_FAIL:
+
+  return address;
+}
+
 /* Create a local socket address. */
 struct sockaddr_un* bzen_socket_address_un(const char* name)
 {
@@ -57,6 +99,7 @@ struct sockaddr_un* bzen_socket_address_un(const char* name)
          not sure of workaround for path names exceeding max path. */
       fprintf(stderr, "\n\tNamed socket filename exceeds max characters.\n\tAllowed: %d\n\tGiven: %d\n",
 	      sizeof(address->sun_path), path_size);
+      bzen_free(address);
       address = NULL;
       goto ADDR_FAIL;
     }
@@ -83,10 +126,6 @@ int bzen_socket_bind(int socket_fd,
   if (result < 0)
     {
       perror("bind");
-      fprintf(stderr, "\n\tfd: %d\n\taddress: %s\n\tsize: %d\n",
-  	      socket_fd,
-  	      address->sa_data,
-  	      address_size);
       shutdown(socket_fd, SHUT_RDWR);
       goto BIND_FAIL;
     }
@@ -119,6 +158,42 @@ int bzen_socket_close(int socket_fd, int how)
     }
 
  CLOSE_FAIL:
+
+  return result;
+}
+
+/* Enable connection requests on server socket. */
+int bzen_socket_listen(int socket_fd, int queue_len)
+{
+  int result;
+
+  result = listen(socket_fd, queue_len);
+  if (result < 0)
+    {
+      perror("listen");
+      goto LISTEN_FAIL;
+    }
+
+ LISTEN_FAIL:
+  
+  return result;
+}
+
+/* Request connection with  socket at  given address. */
+int bzen_socket_connect(int socket_fd, 
+			struct sockaddr* address, 
+			socklen_t address_size)
+{
+  int result;
+
+  result = connect(socket_fd, address, address_size);
+  if (result < 0)
+    {
+      perror("connect");
+      goto CONNECT_FAIL;
+    }
+
+ CONNECT_FAIL:
 
   return result;
 }

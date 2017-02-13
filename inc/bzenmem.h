@@ -26,6 +26,15 @@
 #include "xsize.h"
 
 /**
+ * Free memory allocated dynamically.
+ *
+ * @param void* ptr Pointer to block of memory to be freed.
+ *
+ * @return void
+ */
+void bzen_free(void* ptr);
+
+/**
  * Allocate N bytes of memory dynamically, with error checking.
  *
  * @param size_t n Size of memory block to allocate in bytes.
