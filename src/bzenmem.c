@@ -32,8 +32,17 @@ void bzen_free(void* ptr)
 /* Allocate N bytes of memory dynamically, with error checking. */
 void* bzen_malloc(size_t n) 
 {
+  void* ptr;
+
   /* @todo: manage cleanup of heap. */
-  return xmalloc(n);
+
+  /* Allocate n bytes @ ptr. */
+  ptr =  xmalloc(n);
+  
+  /* zero-out newly allocated memory. */
+  memset(ptr, 0, n);
+  
+  return ptr;
 }
 
 /* Reallocate a block at p of pn objects of s bytes each. */

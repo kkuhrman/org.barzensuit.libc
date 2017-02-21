@@ -34,8 +34,10 @@ bzenincdir = $(includedir)/bzenc
 bzeninc_HEADERS = \
 	$(top_srcdir)/inc/bzenchar.h \
 	$(top_srcdir)/inc/bzenmem.h \
+	$(top_srcdir)/inc/bzensbuf.h \
 	$(top_srcdir)/inc/bzensock.h \
-	$(top_srcdir)/inc/bzentest.h
+	$(top_srcdir)/inc/bzentest.h \
+	$(top_srcdir)/inc/bzenthread.h
 
 # package details
 pkgconfigdir = $(libdir)/pkgconfig
@@ -49,10 +51,14 @@ libbzenc_la_SOURCES = \
 	bzenchar.h \
 	bzenmem.c \
 	bzenmem.h \
+	bzensbuf.c \
+	bzensbufpwd.h \
 	bzensock.c \
 	bzensock.h \
 	bzentest.c \
-	bzentest.h
+	bzentest.h \
+	bzenthread.c \
+	bzenthread.h
 
 # Gnu Lib
 libbzenc_la_LIBADD = $(top_builddir)/lib/libgnu.a
