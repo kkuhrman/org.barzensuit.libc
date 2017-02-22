@@ -44,6 +44,15 @@ void bzen_free(void* ptr);
 void* bzen_malloc(size_t n);
 
 /**
+ * Prints statistics on memory allocated by malloc to stream.
+ *
+ * @param FILE* stream Stream to print to.
+ * 
+ * @return void.
+ */
+void bzen_malloc_print_stats(FILE* stream);
+
+/**
  * Reallocate a block at p of pn objects of s bytes each.
  *
  * @see x2nrealloc() in gnulib/xalloc.h

@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <malloc.h>
 #include "xalloc.h"
 #include "bzenmem.h"
 
@@ -43,6 +44,42 @@ void* bzen_malloc(size_t n)
   memset(ptr, 0, n);
   
   return ptr;
+}
+
+/* Prints statistics on memory allocated by malloc to stream. */
+void bzen_malloc_print_stats(FILE* stream)
+{
+  if (stream != NULL)
+    {
+      struct mallinfo stats;
+      stats = mallinfo();
+
+      /* @see: https://www.gnu.org/software/libc/manual/html_node/
+               Statistics-of-Malloc.html#Statistics-of-Malloc */
+      fprintf(stream, "\nDYNAMIC MEMORY STATISTICS\n");
+
+      /* This is the total size of memory allocated with sbrk by malloc, in bytes.  */
+      fprintf(stream, "\n\tarena size: %d", stats.arena);
+
+      /* This is the number of chunks not in use.  */
+      fprintf(stream, "\n\tChunks not in use: %d", stats.ordblks);
+
+      /* This is the total number of chunks allocated with mmap. */
+      fprintf(stream, "\n\tChunks allocated with mmap: %d", stats.hblks);
+
+      /* This is the total size of memory allocated with mmap, in bytes.  */
+      fprintf(stream, "\n\tTotal memory allocated with mmap: %d", stats.hblkhd);
+
+      /* This is the total size of memory occupied by chunks handed out by malloc.  */
+      fprintf(stream, "\n\tMemory allocated with malloc(): %d", stats.uordblks);
+
+      /* This is the total size of memory occupied by free (not in use) chunks.  */
+      fprintf(stream, "\n\tMemory occupied by free(): %d", stats.fordblks);
+
+      /* This is the size of the top-most releasable chunk that normally borders 
+	 the end of the heap. */
+      fprintf(stream, "\n\tSize of top-most releasable chunk: %d\n", stats.keepcost);
+    }
 }
 
 /* Reallocate a block at p of pn objects of s bytes each. */
