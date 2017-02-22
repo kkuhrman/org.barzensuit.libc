@@ -37,7 +37,7 @@ bzen_sbuf_t* bzen_sbuf_create(unsigned long int size)
   int nullterminate_pos;
 
   /* Determine size of buffer struct.  */
-  buffer_struct_size = xcast_size_t(sizeof(bzen_sbuf_t) + (sizeof(char*) * size));
+  buffer_struct_size = xcast_size_t(sizeof(bzen_sbuf_t));
   
   /* Allocate memory for buffer struct. */
   pbuffer = (bzen_sbuf_t*)bzen_malloc(buffer_struct_size);
@@ -50,6 +50,9 @@ bzen_sbuf_t* bzen_sbuf_create(unsigned long int size)
       pbuffer = NULL;
       goto CREATE_FAIL;
     }
+
+  /* Null-terminate the character buffer. */
+  pbuffer->buffer[0] = '\0';
 
  CREATE_FAIL:
 
@@ -78,7 +81,7 @@ int bzen_sbuf_destroy(bzen_sbuf_t* buffer, double timeout)
 	  /* @todo: Deallocate buffer memory. 
 	   obviously somehow out of bounds as this causes double free or 
 	   corruption (top) condition */
-	  /* bzen_free(buffer); */
+	  bzen_free(buffer);
 	  break;
 	}
       else

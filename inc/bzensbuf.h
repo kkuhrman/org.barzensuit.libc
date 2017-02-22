@@ -27,9 +27,15 @@
 #include "bzenthread.h"
 
 /**
+ * @todo: allow conf file declare number of buffers.
+ */
+const unsigned short int BZEN_DEFAULT_NUMBER_OF_BUFFERS = 4;
+#define BZEN_DEFAULT_NUMBER_OF_BUFFERS BZEN_DEFAULT_NUMBER_OF_BUFFERS
+
+/**
  * default size for io stream buffer.
  */
-const unsigned short int BZEN_SBUF_DEFAULT_SIZE = 256;
+const unsigned short int BZEN_SBUF_DEFAULT_SIZE = 1024;
 #define BZEN_SBUF_DEFAULT_SIZE BZEN_SBUF_DEFAULT_SIZE
 
 /**
@@ -44,8 +50,7 @@ const unsigned short int BZEN_SBUF_DEFAULT_WAIT = 1;
 typedef struct _bzen_sbuf_s
 {
   pthread_mutex_t mutex;
-  size_t buffer_size;
-  char buffer[];
+  char buffer[1024];
 } bzen_sbuf_t;
 
 /**
