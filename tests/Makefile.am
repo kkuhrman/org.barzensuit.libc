@@ -36,6 +36,7 @@ check_PROGRAMS = \
 	bzentest_char \
 	bzentest_environment \
 	bzentest_sbuf \
+	bzentest_scratch \
 	bzentest_socket_create_local \
 	bzentest_socket_create_inet \
 	bzentest_socket_fail \
@@ -45,6 +46,7 @@ TESTS = \
 	bzentest_char \
 	bzentest_environment \
 	bzentest_sbuf \
+	bzentest_scratch \
 	bzentest_socket_create_local \
 	bzentest_socket_create_inet \
 	bzentest_socket_fail \

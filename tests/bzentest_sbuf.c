@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <stdio.h>
+#include <string.h>
 
 /* libbzenc */
 #include "bzentest.h"
@@ -31,7 +32,7 @@ int main (int argc, char *argv[])
   int result = BZEN_TEST_EVAL_PASS;
   int status;
   double timeout;
-  bzen_sbuf* pbuffer;
+  bzen_sbuf_t* pbuffer;
 
   /* Create a stream buffer */
   pbuffer = bzen_sbuf_create(BZEN_SBUF_DEFAULT_SIZE);

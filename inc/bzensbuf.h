@@ -23,6 +23,7 @@
 #define _BZEN_SBUF_H_
 
 #include <config.h>
+#include <sys/types.h>
 #include "bzenthread.h"
 
 /**
@@ -40,11 +41,12 @@ const unsigned short int BZEN_SBUF_DEFAULT_WAIT = 1;
 /**
  * @typedef:    bzen_sbuf
  */
-typedef struct _bzen_sbuf
+typedef struct _bzen_sbuf_s
 {
   pthread_mutex_t mutex;
-  int buffer[];
-} bzen_sbuf;
+  size_t buffer_size;
+  char buffer[];
+} bzen_sbuf_t;
 
 /**
  * Allocate memory for a new stream buffer.
@@ -53,7 +55,7 @@ typedef struct _bzen_sbuf
  *
  * @return bzen_sbuf* pointer to newly allocated buffer or NULL.
  */
-bzen_sbuf* bzen_sbuf_create(unsigned long int size);
+bzen_sbuf_t* bzen_sbuf_create(unsigned long int size);
 
 /**
  * Thread-safe stream buffer destructor.
@@ -66,6 +68,6 @@ bzen_sbuf* bzen_sbuf_create(unsigned long int size);
  *
  * @return int 0 on success
  */
-int bzen_sbuf_destroy(bzen_sbuf* buffer, double timeout);
+int bzen_sbuf_destroy(bzen_sbuf_t* buffer, double timeout);
 
 #endif /* _BZEN_SBUF_H_ */

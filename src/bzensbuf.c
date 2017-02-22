@@ -28,20 +28,19 @@
 #include "bzensbuf.h"
 
 /* Allocate memory for a new stream buffer. */
-bzen_sbuf* bzen_sbuf_create(unsigned long int size)
+bzen_sbuf_t* bzen_sbuf_create(unsigned long int size)
 {
-  bzen_sbuf* pbuffer;
+  bzen_sbuf_t* pbuffer;
+  char* buffer;
   size_t buffer_struct_size;
   int status;
+  int nullterminate_pos;
 
   /* Determine size of buffer struct.  */
-  buffer_struct_size = xcast_size_t(sizeof(bzen_sbuf) + (sizeof(int) * size));
+  buffer_struct_size = xcast_size_t(sizeof(bzen_sbuf_t) + (sizeof(char*) * size));
   
   /* Allocate memory for buffer struct. */
-  pbuffer = (bzen_sbuf*)bzen_malloc(buffer_struct_size);
-
-  /* Null terminate buffer at end. */
-  pbuffer->buffer[size - 1] = '\0';
+  pbuffer = (bzen_sbuf_t*)bzen_malloc(buffer_struct_size);
 
   /* Initialize the mutex. */
   status = bzen_mutex_init(&pbuffer->mutex, NULL);
@@ -58,7 +57,7 @@ bzen_sbuf* bzen_sbuf_create(unsigned long int size)
 }
 
 /* Thread-safe stream buffer destructor. */
-int bzen_sbuf_destroy(bzen_sbuf* buffer, double timeout)
+int bzen_sbuf_destroy(bzen_sbuf_t* buffer, double timeout)
 {
   int result;
   clock_t start_time;
