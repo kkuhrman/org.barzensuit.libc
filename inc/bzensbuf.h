@@ -1,6 +1,6 @@
 /**
  * @file:	bzensbuf.h
- * @brief:	Thread-safe stream buffer management functions.
+ * @brief:	Encapsulate thread-safe allocation/access of character buffers.
  * 
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
  * @license:	GPLv3+: GNU GPL version 3
@@ -29,38 +29,53 @@
 /**
  * @todo: allow conf file declare number of buffers.
  */
-const unsigned short int BZEN_DEFAULT_NUMBER_OF_BUFFERS = 4;
+const size_t BZEN_DEFAULT_NUMBER_OF_BUFFERS = 4;
 #define BZEN_DEFAULT_NUMBER_OF_BUFFERS BZEN_DEFAULT_NUMBER_OF_BUFFERS
 
 /**
  * default size for io stream buffer.
  */
-const unsigned short int BZEN_SBUF_DEFAULT_SIZE = 1024;
+const size_t BZEN_SBUF_DEFAULT_SIZE = 1024;
 #define BZEN_SBUF_DEFAULT_SIZE BZEN_SBUF_DEFAULT_SIZE
 
 /**
  * default wait time in seconds for lock on mutex.
  */
-const unsigned short int BZEN_SBUF_DEFAULT_WAIT = 1;
+const double BZEN_SBUF_DEFAULT_WAIT = 1;
 #define BZEN_SBUF_DEFAULT_WAIT BZEN_SBUF_DEFAULT_WAIT
 
 /**
- * @typedef:    bzen_sbuf
+ * @typedef bzen_cbuflock
  */
-typedef struct _bzen_sbuf_s
+typedef struct _bzen_cbuflock_s
 {
+  unsigned short int id;
   pthread_mutex_t mutex;
-  char buffer[1024];
-} bzen_sbuf_t;
+  size_t size;
+} bzen_cbuflock_t;
 
 /**
- * Allocate memory for a new stream buffer.
+ * Return a count of the number of buffers currently allocated.
  *
- * @param unsigned long int size Size in bytes of buffer.
- *
- * @return bzen_sbuf* pointer to newly allocated buffer or NULL.
+ * @return size_t
  */
-bzen_sbuf_t* bzen_sbuf_create(unsigned long int size);
+size_t bzen_sbuf_count_allocated();
+
+/**
+ * Return a count of the number of buffers currently in use.
+ *
+ * @return size_t
+ */
+size_t bzen_sbuf_count_used();
+
+/**
+ * Allocate memory for a new character buffer.
+ *
+ * @param size_t size Size in bytes of buffer.
+ *
+ * @return bzen_cbuflock_t* Pointer to new buffer lock.
+ */
+bzen_cbuflock_t* bzen_sbuf_create(size_t size);
 
 /**
  * Thread-safe stream buffer destructor.
@@ -68,11 +83,11 @@ bzen_sbuf_t* bzen_sbuf_create(unsigned long int size);
  * bzen_sbuf_destroy() will try to get a lock on corresponding mutex before
  * destroying the mutex and freeing any memory.
  *
- * bzen_sbuf* buffer Pointer to buffer to destroy.
+ * bzen_cbuflock_t* cbuflock Pointer to lock for targeted buffer.
  * double timeout Timeout period in seconds (wait for lock on mutex).
  *
  * @return int 0 on success
  */
-int bzen_sbuf_destroy(bzen_sbuf_t* buffer, double timeout);
+int bzen_sbuf_destroy(bzen_cbuflock_t* cbuflock, double timeout);
 
 #endif /* _BZEN_SBUF_H_ */

@@ -57,6 +57,12 @@ void bzen_malloc_print_stats(FILE* stream);
  *
  * @see x2nrealloc() in gnulib/xalloc.h
  *
+ * Be mindful that pn returns with the 'new' size, which is likely to be greater
+ * than the size requested as gnulib increments at a rate of about 1.5 * pn per 
+ * call. Check the outcoming value if knowing the allocated block size is 
+ * important (do not rely on the input value being unchanged).
+ * see gnulib/xalloc.h for further description of function behavior.
+ *
  * @param void* p Pointer to memory block to reallocate.
  * @param size_t* pn New number of allocated objects.
  * @param size_t s Size of object.
