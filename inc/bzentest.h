@@ -42,6 +42,19 @@ const unsigned short int BZEN_TEST_BOOL_FALSE = 0;
 #define BZEN_TEST_BOOL bzen_test_bool
 
 /**
+ * Shorthand notations of some common test evaulation  functions.
+ */
+#define BZENPASS BZEN_TEST_EVAL_PASS
+#define BZENFAIL BZEN_TEST_EVAL_FAIL
+#define BZENTEST_FALSE(e) bzen_test_logical_false(e)
+#define BZENTEST_TRUE(e) bzen_test_logical_true(e)
+#define BZENTEST_EQUALS_N(e,a) bzen_test_equals_int(e,a)
+#define BZENTEST_NOT_EQUALS_N(e,a) bzen_test_not_equals_int(e,a)
+#define BZENTEST_EXIT_FAIL(f,l) bzen_test_exit_fail(f,l)
+#define BZENTEST_EXIT_PASS bzen_test_exit_pass
+#define BZENTEST_PRINT_FAIL(f,l) bzen_test_print_fail(f,l)
+
+/**
  * Casts any integer as a pseudo boolean type.
  *
  * @param int value Integer value to evaluate.
@@ -49,6 +62,44 @@ const unsigned short int BZEN_TEST_BOOL_FALSE = 0;
  * @return int 1 or value is nonzero otherwise 0.
  */
 int bzen_test_bool(int value);
+
+/**
+ * Test if two integer values are equal.
+ *
+ * @param int expected Expected return value.
+ * @param int actual Actual return value.
+ *
+ * @return int 0 on if arguments are equal, otherwise 1.
+ */
+int bzen_test_equals_int(int expected, int actual);
+
+/**
+ * Test if two integer values are not equal.
+ *
+ * @param int expected Expected return value.
+ * @param int actual Actual return value.
+ *
+ * @return int 0 on if arguments are not equal, otherwise 1.
+ */
+int bzen_test_not_equals_int(int expected, int actual);
+
+/**
+ * Tests if the given expression is FALSE.
+ *
+ * @param int expr Any syntactically correct logical expression.
+ *
+ * @return int 0 on if expr is FALSE, otherwise 1.
+ */
+int bzen_test_logical_false(int expr);
+
+/**
+ * Tests if the given expression is TRUE.
+ *
+ * @param int expr Any syntactically correct logical expression.
+ *
+ * @return int 0 on if expr is TRUE, otherwise 1.
+ */
+int bzen_test_logical_true(int expr);
 
 /**
  * Evaluates result of test on function returning boolean.
@@ -75,5 +126,33 @@ int bzen_test_eval_fn_bool(char* fn_name, int expected, int actual, char* error_
  * @return int 0 on success, 1 on fail.
  */
 int bzen_test_eval_fn_int(char* fn_name, int expected, int actual, char* error_message);
+
+/**
+ * Log a message indicating test failure and exit the test program.
+ *
+ *
+ * Intended use is bzen_test_exit_fail(__FILE__, __LINE__)
+ *
+ * @param const char* filename Typically __FILE__
+ * @param int linenum Typically __LINE__
+ */
+void bzen_test_exit_fail(const char* filename, int linenum);
+
+/**
+ * Exit the test program indicating PASS status.
+ */
+void bzen_test_exit_pass();
+
+/**
+ * Prints a generic message to stderr
+ *
+ * Intended use is bzen_test_print_fail(__FILE__, __LINE__)
+ *
+ * @param const char* filename Typically __FILE__
+ * @param int linenum Typically __LINE__
+ *
+ * @return void
+ */
+void bzen_test_print_fail(const char* filename, int linenum);
 
 #endif /* _BZENLIBC_TEST_H_ */

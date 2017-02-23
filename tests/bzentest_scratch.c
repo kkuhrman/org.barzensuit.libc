@@ -24,11 +24,53 @@
 #include <string.h>
 
 /* libbzenc */
+#include "bzenmem.h"
 #include "bzentest.h"
 #include "bzensbuf.h"
 
 int main (int argc, char *argv[])
 {
   int result = BZEN_TEST_EVAL_PASS;
-  return result;
+
+  /* Some examples of how to use shorthand notation. 
+   * In this case arguments are expected to be equal.
+   */
+  if (BZENPASS != BZENTEST_EQUALS_N(1, 1))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* In this case arguments are expected to be not equal. 
+   * The one line notation below is OK if no cleanup is
+   * required before exit (as in example above).
+   */
+  if (BZENPASS != BZENTEST_NOT_EQUALS_N(1, 0))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* In this case expression is expected to be false. */
+  if (BZENPASS != BZENTEST_FALSE(1 == 0))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* In this case expression is expected to be true. 
+   * The three line notation with goto statement in 
+   * example below is recommended if there is cleanup
+   * work to do before exit.
+   */
+  if (BZENPASS != BZENTEST_TRUE(1 == 1))
+    {
+      BZENTEST_PRINT_FAIL(__FILE__, __LINE__);
+      result = BZEN_TEST_EVAL_FAIL;
+      goto END_TEST;
+    }
+
+ END_TEST:
+
+  if (result)
+    BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+  else
+    BZENTEST_EXIT_PASS;
 }

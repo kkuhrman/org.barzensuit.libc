@@ -32,6 +32,34 @@ int bzen_test_bool(int value)
   return result;
 }
 
+/* Test if two integer values are equal. */
+int bzen_test_equals_int(int expected, int actual)
+{
+  int result = (expected == actual) ? BZENPASS : BZENFAIL;
+  return result;
+}
+
+/* Test if two integer values are not equal. */
+int bzen_test_not_equals_int(int expected, int actual)
+{
+  int result = (expected != actual) ? BZENPASS : BZENFAIL;
+  return result;
+}
+
+/* Tests if the given expression is FALSE. */
+int bzen_test_logical_false(int expr)
+{
+  int result = BZEN_TEST_BOOL(expr) ? BZENFAIL : BZENPASS;
+  return result;
+}
+
+/* Tests if the given expression is TRUE. */
+int bzen_test_logical_true(int expr)
+{
+  int result = BZEN_TEST_BOOL(expr) ? BZENPASS : BZENFAIL;
+  return result;
+}
+
 /* Evaluates result of test on funtion returning boolean. */
 int bzen_test_eval_fn_bool(char* fn_name, int expected, int actual, char* error_message)
 {
@@ -91,4 +119,25 @@ int bzen_test_eval_fn_int(char* fn_name, int expected, int actual, char* error_m
     result = 1;
   }
   return result;
+}
+
+/* Log a message indicating test failure and exit the test program. */
+void bzen_test_exit_fail(const char* filename, int linenum)
+{
+  fprintf(stderr, "\nTest terminated with FAIL status near line %d in file: \n%s\n",
+	  linenum, filename);
+  exit(BZEN_TEST_EVAL_FAIL);
+}
+
+/* Exit the test program indicating PASS status. */
+void bzen_test_exit_pass()
+{
+  exit(BZEN_TEST_EVAL_PASS);
+}
+
+/* Prints a generic message to stderr. */
+void bzen_test_print_fail(const char* filename, int linenum)
+{
+  fprintf(stderr, "\nTest FAIL condition raised near line %d in file: \n%s\n",
+	  linenum, filename);
 }
