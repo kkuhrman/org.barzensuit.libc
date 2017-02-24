@@ -62,6 +62,7 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
   if (buffers == NULL)
     {
       /* Allocate memory for FILE* pointers to streams. */
+      buffers_allocated = BZEN_DEFAULT_NUMBER_OF_BUFFERS;
       buffers = (FILE**)bzen_malloc(xcast_size_t(sizeof(FILE*)) * buffers_allocated);
     }
   else

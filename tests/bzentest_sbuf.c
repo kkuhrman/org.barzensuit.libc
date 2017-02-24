@@ -90,6 +90,8 @@ int main (int argc, char *argv[])
       	   bzen_test_eval_fn_int("bzen_sbuf_count_used()", 1 + cbuflock_id,
       				 bzen_sbuf_count_used(), NULL)))
       	{
+	  fprintf(stderr, "\n\tbuffers allocated: %d\n\tbuffers used: %d\n",
+		  bzen_sbuf_count_allocated(), bzen_sbuf_count_used());
       	  result = BZEN_TEST_EVAL_FAIL;
       	  goto END_TEST;
       	}

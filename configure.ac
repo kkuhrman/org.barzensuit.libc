@@ -21,7 +21,7 @@
 # @author:	Karl Kuhrman
 #
 
-AC_INIT([bzenlibc], [0.1.3], [bugs@barzensuit.org])
+AC_INIT([bzenlibc], [0.1.4], [bugs@barzensuit.org])
 
 # Must come before AM_INIT_AUTOMAKE.
 AC_CONFIG_AUX_DIR([build-aux])
