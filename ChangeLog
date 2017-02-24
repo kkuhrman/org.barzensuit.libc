@@ -1,3 +1,11 @@
+2017-02-24  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* configure.ac: advanced version to 0.1.4
+	* inc/bzensbuf.h: declare API to create/destroy stream locks, char i/o
+	* src/bzensbuf.c: Streams as FILE* in memory; mutex protects char r/w
+	* inc/bzentest.h: macros notate shorthand for common unit testing fns()
+	* src/bzentest.c: Added true(int), false(int), equals(n,n), notequals(n,n)
+
 2017-02-13  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac:	advanced version to 0.1.3
