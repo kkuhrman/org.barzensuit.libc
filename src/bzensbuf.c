@@ -37,12 +37,6 @@ static FILE** buffers = NULL;
  */
 static size_t buffers_used = 0;
 static size_t buffers_allocated = 0;
-static size_t iterators_allocated = 0;
-
-/**
- * Encapsulated buffer character position pointers.
- */
-static bzen_sbufit_t* buffer_it = NULL;
 
 /* Return a count of the number of buffers currently allocated. */
 size_t bzen_sbuf_count_allocated()
@@ -67,17 +61,8 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
   unsigned short int buffer_id;
   if (buffers == NULL)
     {
-      iterators_allocated = buffers_allocated = BZEN_DEFAULT_NUMBER_OF_BUFFERS;
+      /* Allocate memory for FILE* pointers to streams. */
       buffers = (FILE**)bzen_malloc(xcast_size_t(sizeof(FILE*)) * buffers_allocated);
-
-      /* Allocate storage for correposnding iterators. */
-      buffer_it = (bzen_sbufit_t*)bzen_malloc(xcast_size_t(sizeof(bzen_sbufit_t)) *
-					      iterators_allocated);
-      /* Set all internal iterators at BOF. */
-      for (buffer_id = 0; buffer_id < iterators_allocated; buffer_id++)
-	{
-	  buffer_it[buffer_id] = 0;
-	}
     }
   else
     {
@@ -87,20 +72,6 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
 	  buffers = (FILE**)bzen_realloc(buffers,
 					 &buffers_allocated,
 					 xcast_size_t(sizeof(FILE*)));
-	}
-
-      if (buffers_used == iterators_allocated)
-	{
-	  /* Reallocate storage for iterators. */
-	  buffer_it = (bzen_sbufit_t*)bzen_realloc(buffer_it,
-						   &iterators_allocated,
-						   xcast_size_t(sizeof(bzen_sbufit_t)));
-
-	  /* Set only new internal iterators at BOF. */
-	  for (buffer_id = buffers_used; buffer_id < iterators_allocated; buffer_id++)
-	    {
-	      buffer_it[buffer_id] = 0;
-	    }
 	}
     }
 
@@ -174,8 +145,6 @@ int bzen_sbuf_destroy(bzen_cbuflock_t* cbuflock, double timeout)
 	  buffers[cbuflock->id] = NULL;
 	  bzen_free(cbuflock);
 	  buffers_used--;
-
-	  /* @todo: cleanup dynamically allocated FILE*[] */
 	  break;
 	}
       else

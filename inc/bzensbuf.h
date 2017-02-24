@@ -64,13 +64,6 @@ typedef struct _bzen_cbuflock_s
 } bzen_cbuflock_t;
 
 /**
- * @typedef bzen_sbufit_t
- *
- * Internal pointer to character position in a buffer.
- */
-typedef unsigned long int bzen_sbufit_t;
-
-/**
  * Return a count of the number of buffers currently allocated.
  *
  * @return size_t
