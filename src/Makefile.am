@@ -26,7 +26,7 @@ AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAG_VISIBILITY)
 # Add source file sub-directories to compiler search path
 AM_CPPFLAGS = \
 	-Iinc -I$(top_srcdir)/inc \
-	-Ilib -I$(top_srcdir)/lib \
+	-Ilib/gnulib -I$(top_srcdir)/lib/gnulib \
 	-Isrc -I$(top_srcdir)/src
 
 # API header files to install
@@ -58,7 +58,7 @@ libbzenc_la_SOURCES = \
 	bzenthread.h
 
 # Gnu Lib
-libbzenc_la_LIBADD = $(top_builddir)/lib/libgnu.a
+libbzenc_la_LIBADD = $(LTLIBINTL) $(top_builddir)/lib/gnulib/libgnu.a
 
 libbzenc_la_LDFLAGS = -rpath '$(libdir)'
 

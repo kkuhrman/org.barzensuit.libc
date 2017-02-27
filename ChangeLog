@@ -1,3 +1,11 @@
+2017-02-27  Karl Kuhrman  <kkuhrman@pelican>
+
+	* configure.ac: advanced version to 0.1.5; new convention for gnulib, m4 etc
+	* src/Makefile.am: removed obsolete char.h char.c
+	* tests/Makefile.am: removed bzentest_char.c
+	* lib/gnulib: new location for Gnu Portability Library source and macros
+	* lib/gettext: new location for internationalization files
+
 2017-02-24  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac: advanced version to 0.1.4

@@ -21,7 +21,7 @@
 # @author:	Karl Kuhrman
 #
 
-AC_INIT([bzenlibc], [0.1.4], [bugs@barzensuit.org])
+AC_INIT([bzenlibc], [0.1.5], [bugs@barzensuit.org])
 
 # Must come before AM_INIT_AUTOMAKE.
 AC_CONFIG_AUX_DIR([build-aux])
@@ -33,7 +33,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Specify location of local autoconf macros
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIR([lib/gnulib/m4])
 
 # Minimum Autoconf version required.
 AC_PREREQ([2.69])
@@ -77,7 +77,7 @@ LT_PREREQ([2.4])
 
 AC_CONFIG_FILES([
  Makefile
- lib/Makefile
+ lib/gnulib/Makefile
  src/Makefile
  src/libbzenc.pc
  tests/Makefile

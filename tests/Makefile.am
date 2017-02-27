@@ -26,7 +26,7 @@ AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAG_VISIBILITY)
 # Add source file sub-directories to compiler search path
 AM_CPPFLAGS = \
 	-Iinc -I$(top_srcdir)/inc \
-	-Ilib -I$(top_srcdir)/lib \
+	-Ilib/gnulib -I$(top_srcdir)/lib/gnulib \
 	-Isrc -I$(top_srcdir)/src
 
 AM_LDFLAGS = -no-install

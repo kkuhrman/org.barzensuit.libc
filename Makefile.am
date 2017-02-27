@@ -25,12 +25,12 @@
 
 # Include Gnu Lib macros in distribution
 EXTRA_DIST = 
-EXTRA_DIST += m4/gnulib-cache.m4
+EXTRA_DIST += lib/gnulib/m4/gnulib-cache.m4
 
 # automake will search for MakefileS in the following subdirs.
-SUBDIRS = lib src tests
+SUBDIRS = lib/gnulib src tests
 
 # @todo: ENABLE_DOCS
 
 # Find libtool macros.
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I lib/gnulib/m4
