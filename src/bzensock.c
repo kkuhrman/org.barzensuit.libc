@@ -34,7 +34,7 @@
 /* Accept connection request. */
 int bzen_socket_accept(int socket_fd, 
 		       struct sockaddr* address, 
-		       socklen_t address_size)
+		       socklen_t* address_size)
 {
   int server_side_fd;
   

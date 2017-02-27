@@ -45,7 +45,6 @@
 #include <unistd.h>
 
 /* libzenc includes */
-#include "bzenchar.h"
 
 /* A default prefix for things such as local addresses. */
 const char* BZENSOCK_PREFIX = "BZENSOCK_";
@@ -62,13 +61,13 @@ const int BZENSOCK_CLIENT = 0x00001000;
  *
  * @param int socket_fd 
  * @param struct sockaddr* address Optional, out
- * @param socklen_t address_size Optional, out
+ * @param socklen_t* address_size Optional, out
  * 
  * @return int File descriptor of server side connection or -1.
  */
 int bzen_socket_accept(int socket_fd, 
 		       struct sockaddr* address, 
-		       socklen_t address_size);
+		       socklen_t* address_size);
 
 /**
  * Create an internet socket address.
