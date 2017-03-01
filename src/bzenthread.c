@@ -53,9 +53,53 @@ int bzen_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
   return status;
 }
 
+/* Encapsulates pthread_create(). */
+int bzen_thread_create(pthread_t *thread, 
+		       const pthread_attr_t *attr,
+		       void* (*start_routine)(void*), 
+		       void *arg)
+{
+  int status;
+
+  /* Attempt to create the thread. */
+ status = pthread_create(thread, attr, start_routine, arg);
+ if (status != 0)
+   {
+     bzen_thread_print_error("pthread_create", status);
+   }
+
+  return status;
+}
+
+/**
+ * Encapsulates pthread_exit().
+ *
+ * @param void *value_ptr This value will be available to any successful join.
+ *
+ * @return void.
+ */
+void bzen_thread_exit(void* value_ptr)
+{
+  pthread_exit(value_ptr);
+}
+
+/* Encapsulates pthread_join(). */
+int bzen_thread_join(pthread_t thread, void** value_ptr)
+{
+  int status;
+
+  /* Attempt to join thread. */
+  status = pthread_join(thread, value_ptr);
+  if (status != 0)
+    {
+      bzen_thread_print_error("pthread_join", status);
+    }
+
+  return status;
+}
+
 /* Send pthreads error message to stderr. */
 void bzen_thread_print_error(const char* fn_name, int code)
 {
-  /* @todo: mimic perror() for the pthreads errnos */
-  fprintf(stderr, "\n\terror in pthreads function %s %d\n", fn_name, code);
+  fprintf(stderr, "\n\t%s: %s\n", fn_name, strerror(code));
 }

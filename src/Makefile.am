@@ -21,7 +21,7 @@
 # @author:	Karl Kuhrman
 #
 
-AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAG_VISIBILITY)
+AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAG_VISIBILITY) -pthread
 
 # Add source file sub-directories to compiler search path
 AM_CPPFLAGS = \

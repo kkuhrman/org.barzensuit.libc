@@ -224,7 +224,7 @@ int bzen_sbuf_unlock(bzen_cbuflock_t* cbuflock)
     }
 
   /* Unlock mutex. */
-  unlock_status = pthread_mutex_lock(&cbuflock->mutex);
+  unlock_status = pthread_mutex_unlock(&cbuflock->mutex);
   if (unlock_status != 0)
     {
       /* @todo: error loging */

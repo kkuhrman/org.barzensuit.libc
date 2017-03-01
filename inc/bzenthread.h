@@ -26,7 +26,7 @@
 #include <pthread.h>
 
 /**
- * Supplement pthread_mutex_destroy() with error logging.
+ * Encapsulates pthread_mutex_destroy().
  * 
  * @see: pthread_mutex_destroy()
  *
@@ -37,7 +37,7 @@
 int bzen_mutex_destroy(pthread_mutex_t* mutex);
 
 /**
- * Supplement pthread_mutex_init() with error logging.
+ * Encapsulates  pthread_mutex_init().
  * 
  * @see: pthread_mutex_init()
  *
@@ -47,6 +47,42 @@ int bzen_mutex_destroy(pthread_mutex_t* mutex);
  * @return int 0 on success or errno.
  */
 int bzen_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr);
+
+/**
+ * Encapsulates pthread_create().
+ * 
+ * If NULL is passed for attr, defaults are used.
+ *
+ * @param pthread_t* thread Will stire ID of created thread.
+ * @param  const pthread_attr_t* attr Specifies attributes of thread
+ * @param void* (*start_routine)(void*) routine Thread routine.
+ * @param void* arg Sole argument passed to thread routine.
+ *
+ * @return int 0 on SUCCESS otherwise errno.
+ */
+int bzen_thread_create(pthread_t *thread, 
+		       const pthread_attr_t *attr,
+		       void* (*start_routine)(void*), 
+		       void *arg);
+
+/**
+ * Encapsulates pthread_exit().
+ *
+ * @param void *value_ptr This value will be available to any successful join.
+ *
+ * @return void.
+ */
+void bzen_thread_exit(void* value_ptr);
+
+/**
+ * Encapsulates pthread_join().
+ * 
+ * @param pthread_t thread Target thread.
+ * @param void** value_ptr Will store calue of pthread_exit().
+ *
+ * @return 0 on SUCCESS otherwise errno.
+ */
+int bzen_thread_join(pthread_t thread, void** value_ptr);
 
 /**
  * Send pthreads error message to stderr.

@@ -1,3 +1,10 @@
+2017-02-28  Karl Kuhrman  <kkuhrman@pelican>
+
+	* configure.ac: advanced version to 0.1.6
+	* src/bzensbuf.c: fixed bug in bzen_sbuf_unlock
+	* src/bzensock.c: Implement encapsulation of thread create, join, exit
+	* tests/bzentest_thread.c: add unit testing for thread functions
+
 2017-02-27  Karl Kuhrman  <kkuhrman@pelican>
 
 	* configure.ac: advanced version to 0.1.5; new convention for gnulib, m4 etc
