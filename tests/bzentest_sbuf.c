@@ -28,6 +28,7 @@
 #include "bzensbuf.h"
 
 const unsigned short int BZENTEST_BUFFER_SIZE = 128;
+const unsigned short int BZENTEST_N_BUFFERS = 8;
 
 const char* sbuf_test_data = 
   "ABCDEFGHIJKLMNOPQRSTUVWX \
@@ -61,9 +62,9 @@ int main (int argc, char *argv[])
     }
 
   /* First test dynamic sizing of internal buffers registry. */
-  num_test_buffers = 2 *  BZEN_DEFAULT_NUMBER_OF_BUFFERS;
+  num_test_buffers = BZENTEST_N_BUFFERS;
   cbuflock = (bzen_cbuflock_t**)bzen_malloc(sizeof(bzen_cbuflock_t*) * 
-					     2 * BZEN_DEFAULT_NUMBER_OF_BUFFERS);
+					     BZENTEST_N_BUFFERS);
   for (cbuflock_id = 0; cbuflock_id < num_test_buffers; cbuflock_id++)
     {
       /* Create a stream buffer */

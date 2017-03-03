@@ -34,6 +34,7 @@ LDADD = ../src/libbzenc.la
 
 check_PROGRAMS = \
 	bzentest_environment \
+	bzentest_log \
 	bzentest_sbuf \
 	bzentest_socket_create_local \
 	bzentest_socket_create_inet \
@@ -44,6 +45,7 @@ check_PROGRAMS = \
 
 TESTS = \
 	bzentest_environment \
+	bzentest_log \
 	bzentest_sbuf \
 	bzentest_socket_create_local \
 	bzentest_socket_create_inet \

@@ -32,26 +32,9 @@
 #define _BZEN_SBUF_H_
 
 #include <config.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include "bzenthread.h"
-
-/**
- * @todo: allow conf file declare number of buffers.
- */
-const size_t BZEN_DEFAULT_NUMBER_OF_BUFFERS = 4;
-#define BZEN_DEFAULT_NUMBER_OF_BUFFERS BZEN_DEFAULT_NUMBER_OF_BUFFERS
-
-/**
- * default size for io stream buffer.
- */
-const size_t BZEN_SBUF_DEFAULT_SIZE = 1024;
-#define BZEN_SBUF_DEFAULT_SIZE BZEN_SBUF_DEFAULT_SIZE
-
-/**
- * default wait time in seconds for lock on mutex.
- */
-const double BZEN_SBUF_DEFAULT_WAIT = 1;
-#define BZEN_SBUF_DEFAULT_WAIT BZEN_SBUF_DEFAULT_WAIT
 
 /**
  * @typedef bzen_cbuflock

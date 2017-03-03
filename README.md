@@ -23,3 +23,9 @@ libbzenc is provides the C language API to the core Barzensuit Project dependenc
 # Installation
 
 It is highly recommend that Gnu autotools, gcc, lzip and m4 are installed in order to build the Barzensuit software and dependent libraries.
+
+# Log Files
+
+@todo: replace manual procedure with something a bit more elegant.
+
+If user wished to have messages sent to log files s/he must create a directory and set write permissions for user. Set and export environment variable BZEN_LOG_DIR. Otherwise bzentest_log will fail and any messages sent to log facility will be ignored.

@@ -28,6 +28,24 @@
 #include "bzensbuf.h"
 
 /**
+ * @todo: allow conf file declare number of buffers.
+ */
+const size_t BZEN_DEFAULT_NUMBER_OF_BUFFERS = 4;
+#define BZEN_DEFAULT_NUMBER_OF_BUFFERS BZEN_DEFAULT_NUMBER_OF_BUFFERS
+
+/**
+ * default wait time in seconds for lock on mutex.
+ */
+const double BZEN_SBUF_DEFAULT_WAIT = 1;
+#define BZEN_SBUF_DEFAULT_WAIT BZEN_SBUF_DEFAULT_WAIT
+
+/**
+ * default size for io stream buffer.
+ */
+const size_t BZEN_SBUF_DEFAULT_SIZE = 1024;
+#define BZEN_SBUF_DEFAULT_SIZE BZEN_SBUF_DEFAULT_SIZE
+
+/**
  * Encapsulated buffers.
  */
 static FILE** buffers = NULL;
@@ -70,6 +88,7 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
       if (buffers_used == buffers_allocated)
 	{
 	  /* Grow by default size. */
+	  buffers_allocated += BZEN_DEFAULT_NUMBER_OF_BUFFERS;
 	  buffers = (FILE**)bzen_realloc(buffers,
 					 &buffers_allocated,
 					 xcast_size_t(sizeof(FILE*)));
