@@ -97,6 +97,13 @@ int main (int argc, char *argv[])
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
 
+  /* Write long message to first log. */
+  status = bzen_log_write(log_names[0], BZENLOG_STATUS, msg_long);
+  if (BZENPASS != BZENTEST_EQUALS_N(status, 0))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
   /* Close first log file again. */
   status = bzen_log_close(log_names[0]);
   if (BZENPASS != BZENTEST_EQUALS_N(status, 0))
@@ -105,11 +112,11 @@ int main (int argc, char *argv[])
     }
 
   /* Write long message to first log using stat method. */
-  /* status = bzen_log_write_stat(log_names[0], BZENLOG_STATUS, msg_long); */
-  /* if (BZENPASS != BZENTEST_EQUALS_N(status, 0)) */
-  /*   { */
-  /*     BZENTEST_EXIT_FAIL(__FILE__, __LINE__); */
-  /*   } */
+  status = bzen_log_write_stat(log_names[0], BZENLOG_STATUS, msg_long);
+  if (BZENPASS != BZENTEST_EQUALS_N(status, 0))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
 
   /* Close all remaining files. */
   status = bzen_log_close_all();

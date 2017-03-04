@@ -50,13 +50,21 @@ const size_t BZEN_LOG_MAX_PATH_CHARS = 255;
 #define BZEN_LOG_MAX_PATH_CHARS BZEN_LOG_MAX_PATH_CHARS
 
 /**
- * Log line lengths and delimiters etc.
+ * Log line lengths, string buffers  and delimiters etc.
  */
 const size_t BZEN_LOG_LINE_MAX_CHARS = 80;
 #define BZEN_LOG_LINE_MAX_CHARS BZEN_LOG_LINE_MAX_CHARS
+
 const char* BZEN_LOG_ENTRY_DELIMITER = "\t--\n";
 #define BZEN_LOG_ENTRY_DELIMITER BZEN_LOG_ENTRY_DELIMITER
-const size_t BZEN_LOG_EVENT_LINE_DTM_LEN = sizeof(char) * 20;
+
+const size_t BZEN_LOG_EVENT_LINE_MAX_CHARS = 80;
+#define BZEN_LOG_EVENT_LINE_MAX_CHARS BZEN_LOG_EVENT_LINE_MAX_CHARS
+
+const size_t BZEN_LOG_MESSAGE_MAX_CHARS = 1024;
+#define BZEN_LOG_MESSAGE_MAX_CHARS BZEN_LOG_MESSAGE_MAX_CHARS
+
+const size_t BZEN_LOG_EVENT_LINE_DTM_LEN = sizeof(char) * 32;
 
 /**
  * Default fopen() attribute (append).
@@ -127,10 +135,14 @@ int bzen_log_close_all();
  * invalid severity code is passed, default is  BZENLOG_INFO.
  *
  * @param bzenlog_severity_code_t code Severity code. 
+ * @param char* buffer Buffer to write to.
+ * @param size_t size Size of buffer.
  *
- * @return const char* Formatted event line .
+ * @return int 0 on SUCCESS otherwise -1.
  */
-static const char* bzen_log_event_line(bzenlog_severity_code_t code);
+static int  bzen_log_event_line(bzenlog_severity_code_t code,
+				char* buffer,
+				size_t size);
 
 /**
  * Find corresponding id of named log if exists.
@@ -145,10 +157,14 @@ static int bzen_log_find_id(const char* name);
  * Formats a log message so no line exceeds max chars and no words are broken.
  *
  * @param const char* message Unformatted message.
+ * @param char* buffer Buffer to write to.
+ * @param size_t size Size of buffer.
  *
- * @return const char* Formatted message plus delimiter.
+ * @return int 0 on SUCCESS otherwise -1.
  */
-static const char* bzen_log_format_message(const char* message);
+static int  bzen_log_format_message(const char* message,
+				    char* buffer,
+				    size_t size);
 
 /**
  * Check if given log file is open. 

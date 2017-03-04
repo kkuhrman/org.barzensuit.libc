@@ -47,6 +47,8 @@ const char BZENLOG_SEVERITY_CODE_SYMBOL[BZENLOG_DEBUG + 1] =
  */
 static char** log_names = NULL;
 static char** log_paths = NULL;
+static char** log_evtline_buffers = NULL;
+static char** log_message_buffers = NULL;
 static bzen_loglock_t** log_locks = NULL;
 
 /**
@@ -111,23 +113,32 @@ int bzen_log_close_all()
 }
 
 /* Generate event line text. */
-static const char* bzen_log_event_line(bzenlog_severity_code_t code)
+static int  bzen_log_event_line(bzenlog_severity_code_t code, 
+				char* buffer,
+				size_t size)
 {
   time_t now;
   struct tm* local_time;
-  char event_time[BZEN_TIME_STR_BUFFER_SIZE];
+  char event_time[BZEN_LOG_EVENT_LINE_DTM_LEN];
   const char* micro_time = "0000"; /* reserved for future implementation */
-  char* event_line;
   uid_t effective_user_id;
   gid_t effective_group_id;
   uid_t real_user_id;
   gid_t real_group_id;
   char symbolic_code;
+  int result;
+
+  /* Check buffer and size. */
+  if ((buffer == NULL) || (size < BZEN_LOG_EVENT_LINE_MAX_CHARS))
+    {
+      result = -1;
+      goto FMT_FAIL;
+    }
 
   /* Severity code defaults to 'info' */
   symbolic_code = (code <= BZENLOG_DEBUG) ? BZENLOG_SEVERITY_CODE_SYMBOL[code] : 'I';
 
-  /* Format current local date-time. */
+  /* Get current local date-time. */
   now = time(NULL);
   local_time = localtime(&now);
   strftime(event_time, 
@@ -141,12 +152,10 @@ static const char* bzen_log_event_line(bzenlog_severity_code_t code)
   real_user_id = getuid();
   real_group_id = getgid();
 
-  /* Allocate memory for the event line. */
-  event_line = (char*)bzen_malloc(xcast_size_t(sizeof(char) *
-					       (BZEN_LOG_LINE_MAX_CHARS + 1)));
-
   /* Write formatted event line. */
-  sprintf(event_line, "%s %s %c %6d %6d %6d %6d\n", 
+  memset(buffer, 0, size);
+  sprintf(buffer,
+	  "%s %s %c %6d %6d %6d %6d\n", 
 	  event_time, 
 	  micro_time,
 	  symbolic_code,
@@ -155,7 +164,12 @@ static const char* bzen_log_event_line(bzenlog_severity_code_t code)
 	  real_user_id,
 	  real_group_id);
 
-  return event_line;
+  /* SUCCESS */
+  result = 0;
+
+ FMT_FAIL:
+
+  return result;
 }
 
 /* Find corresponding id of named log if exists. */
@@ -178,25 +192,31 @@ static int bzen_log_find_id(const char* name)
 }
 
 /* Formats a log message so no line exceeds max chars and no words are broken. */
-static const char* bzen_log_format_message(const char* message)
+static int  bzen_log_format_message(const char* message,
+				    char* buffer,
+				    size_t size)
 {
-  char* formatted_message;
-  size_t formatted_message_size;
   size_t unfmtmsg_size;
-  size_t num_new_lines;
   int raw_pos;
   int fmt_pos;
   int line_char_count;
   int last_space;
-  char move_char;
+  char read_char;
+  char write_char;
+  int result;
   
+  /* Check buffer and size. */
+  if ((buffer == NULL) || (size < BZEN_LOG_MESSAGE_MAX_CHARS))
+    {
+      result = -1;
+      goto SKIP_FMT;
+    }
+
   /* Fail on NULL */
   if (message == NULL)
     {
-      formatted_message_size = xcast_size_t(sizeof(char) * 
-					    strlen(BZEN_LOG_ENTRY_DELIMITER));
-      formatted_message = (char*)bzen_malloc(formatted_message_size);
-      sprintf(formatted_message, "%s", BZEN_LOG_ENTRY_DELIMITER);
+      sprintf(buffer, "%s", BZEN_LOG_ENTRY_DELIMITER);
+      result = 0;
       goto SKIP_FMT;
     }
 
@@ -206,66 +226,66 @@ static const char* bzen_log_format_message(const char* message)
   /* If n chars is less than max per line, skip all the word-wrap logic. */
   if (unfmtmsg_size <= BZEN_LOG_LINE_MAX_CHARS)
     {
-      formatted_message_size = xcast_size_t(sizeof(char) * unfmtmsg_size);
-      formatted_message = (char*)bzen_malloc(formatted_message_size);
-      sprintf(formatted_message, "%s", message);
+      sprintf(buffer, "%s", message);
+      result = 0;
       goto SKIP_FMT;
     }
-
-  /* Estimate number of new line chars. */
-  num_new_lines = unfmtmsg_size/BZEN_LOG_LINE_MAX_CHARS;
-  num_new_lines += (unfmtmsg_size%BZEN_LOG_LINE_MAX_CHARS) ? 1 : 1;
-
-  /* Allcoate memory for formatted message. */
-  formatted_message_size = xcast_size_t(sizeof(char) * (unfmtmsg_size + num_new_lines));
-  formatted_message = (char*)bzen_malloc(formatted_message_size);
 
   /* Copy characters to fomatted message buffer. */
   raw_pos = 0;
   fmt_pos = 0;
   line_char_count = 0;
   last_space = 0;
+  memset(buffer, 0, size);
   while (raw_pos < unfmtmsg_size)
     {
       /* Get next char in message. */
-      move_char = message[raw_pos];
+      read_char = message[raw_pos];
 
       if (line_char_count < BZEN_LOG_LINE_MAX_CHARS)
 	{
 	  /* Bookmark if char is punctuation or whitespace. */
-	  if (ispunct(move_char) || isspace(move_char))
+	  if (ispunct(read_char) || isspace(read_char))
 	    {
 	      last_space = raw_pos;
 	    }
-
-	  /* Copy character to formatted message buffer. */
-	  formatted_message[fmt_pos];
+	  
+	  /* Send char to output. */
+	  write_char = read_char;
 
 	  /* Next char. */
 	  raw_pos++;
-	  fmt_pos++;
 	  line_char_count++;
 	}
       else
 	{
 	  /* Limit reached. Check if in middle of word. */
-	  if (last_space != raw_pos)
+	  if (last_space == raw_pos)
+	    {
+	      write_char = read_char;
+	    }
+	  else
 	    {
 	      /* Char pointer is in middle of word. Force new line after last bookmark. */
 	      fmt_pos = last_space + 1;
-	      formatted_message[fmt_pos] = '\n';
+	      write_char  = '\n';
 	      
 	      /* Reset char counter to beginning of last word. */
-	      raw_pos = last_space + 2;
-	      fmt_pos++;
+	      raw_pos = last_space + 1;
 	      line_char_count = 0;
 	    }
 	}
+      
+      /* Copy character to formatted message buffer. */
+      buffer[fmt_pos] = write_char;
+      fmt_pos++;
     }
+  
+  result = 0;
 
  SKIP_FMT:
   
-  return formatted_message;
+  return result;
 }
 
 /* Check if given log file is open. */
@@ -295,8 +315,8 @@ int bzen_log_open(const char* name, const char* attr)
   size_t log_name_size;
   size_t log_path_size;
   size_t log_lock_size;
-  size_t actual_name_allocate;
-  size_t actual_path_allocate;
+  size_t actual_cbuf_allocate;
+  size_t actual_cbuf_allocate_min;
   size_t actual_lock_allocate;
   int log_id;
   int log_find;
@@ -321,6 +341,10 @@ int bzen_log_open(const char* name, const char* attr)
 						logs_allocated);
       log_paths = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
 						logs_allocated);
+      log_evtline_buffers = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
+						logs_allocated);
+      log_message_buffers = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
+						logs_allocated);
       log_locks = (bzen_loglock_t**)bzen_malloc(xcast_size_t(sizeof(bzen_loglock_t*)) * 
 						logs_allocated);
     }
@@ -343,19 +367,33 @@ int bzen_log_open(const char* name, const char* attr)
 	    {
 	      /* Out of space. Grow by default size. */
 	      logs_allocated += BZEN_DEFAULT_NUMBER_LOGS;
-	      actual_name_allocate = logs_allocated;
-	      actual_path_allocate = logs_allocated;
+	      actual_cbuf_allocate = logs_allocated;
 	      actual_lock_allocate = logs_allocated;
-	      log_names = (char**)bzen_realloc(log_names,
-					       &actual_name_allocate,
-					       xcast_size_t(sizeof(char*)));
-	      log_paths = (char**)bzen_realloc(log_paths,
-					       &actual_path_allocate,
-					       xcast_size_t(sizeof(char*)));
 
-	      /* use smaller of actual allcoated sizes. @see next comment.  */
-	      actual_name_allocate = (actual_name_allocate < actual_path_allocate) ?
-		actual_name_allocate : actual_path_allocate;
+	      /* See comment below about log_locks allocated count. 
+	         We want to use minimum allocated size as upper index. */
+	      log_names = (char**)bzen_realloc(log_names,
+					       &actual_cbuf_allocate,
+					       xcast_size_t(sizeof(char*)));
+	      actual_cbuf_allocate_min = actual_cbuf_allocate;
+
+	      log_paths = (char**)bzen_realloc(log_paths,
+					       &actual_cbuf_allocate,
+					       xcast_size_t(sizeof(char*)));
+	      actual_cbuf_allocate_min = (actual_cbuf_allocate_min < actual_cbuf_allocate) ?
+		actual_cbuf_allocate_min : actual_cbuf_allocate;
+
+	      log_evtline_buffers = (char**)bzen_realloc(log_evtline_buffers,
+					       &actual_cbuf_allocate,
+					       xcast_size_t(sizeof(char*)));
+	      actual_cbuf_allocate_min = (actual_cbuf_allocate_min < actual_cbuf_allocate) ?
+		actual_cbuf_allocate_min : actual_cbuf_allocate;
+
+	      log_message_buffers = (char**)bzen_realloc(log_message_buffers,
+					       &actual_cbuf_allocate,
+					       xcast_size_t(sizeof(char*)));
+	      actual_cbuf_allocate_min = (actual_cbuf_allocate_min < actual_cbuf_allocate) ?
+		actual_cbuf_allocate_min : actual_cbuf_allocate;
 
 	      log_locks = (bzen_loglock_t**)bzen_realloc(log_locks,
 							 &actual_lock_allocate,
@@ -365,8 +403,8 @@ int bzen_log_open(const char* name, const char* attr)
 	         potentially unsafe situation. We need to correct any disparity 
 	         prior to proceeding. The gnulib xrealloc() increases block size
 	         by a factor of 1.5. At present, we simply pick smaller or two. */
-	      logs_allocated = (actual_lock_allocate < actual_name_allocate) ?
-		actual_lock_allocate : actual_name_allocate;
+	      logs_allocated = (actual_lock_allocate < actual_cbuf_allocate_min) ?
+		actual_lock_allocate : actual_cbuf_allocate_min;
 	    }
 	}
     }
@@ -392,6 +430,12 @@ int bzen_log_open(const char* name, const char* attr)
 	      PATH_DELIMITER, 
 	      name);
 
+      /* Allocate memory for string buffers. */
+      log_evtline_buffers[log_id] = (char*)bzen_malloc(xcast_size_t(sizeof(char) *
+								    BZEN_LOG_EVENT_LINE_MAX_CHARS));
+      log_message_buffers[log_id] = (char*)bzen_malloc(xcast_size_t(sizeof(char) *
+								    BZEN_LOG_MESSAGE_MAX_CHARS));
+
       /* Allocate memory for lock. */
       log_lock_size = xcast_size_t(sizeof(bzen_loglock_t));
       log_locks[log_id] = (bzen_loglock_t*)bzen_malloc(log_lock_size);
@@ -410,7 +454,6 @@ int bzen_log_open(const char* name, const char* attr)
   status = pthread_mutex_lock(&log_locks[log_id]->mutex);
   if (status != 0)
     {
-      /* @todo: error loging */
       result = -1;
       goto OPEN_FAIL;
     }
@@ -431,7 +474,6 @@ int bzen_log_open(const char* name, const char* attr)
   status = pthread_mutex_unlock(&log_locks[log_id]->mutex);
   if (status != 0)
     {
-      /* @todo: error loging */
       bzen_mutex_destroy(&log_locks[log_id]->mutex);
       bzen_free(log_names[log_id]);
       bzen_free(log_locks[log_id]);
@@ -488,9 +530,8 @@ int bzen_log_write(const char* name,
     }
 
   /* Write the event line. */
-  /* fmtstr = bzen_log_event_line(code); */
-  status = fputs(bzen_log_event_line(code), log_locks[log_id]->fd);
-  /* bzen_free(fmtstr); */
+  bzen_log_event_line(code, log_evtline_buffers[log_id], BZEN_LOG_EVENT_LINE_MAX_CHARS);
+  status = fputs(log_evtline_buffers[log_id], log_locks[log_id]->fd);
   if (status == EOF)
     {
       result = -1;
@@ -498,9 +539,8 @@ int bzen_log_write(const char* name,
     }
 
   /* Write the message. */
-  /* fmtstr = bzen_log_format_message(message); */
-  status = fputs(bzen_log_format_message(message), log_locks[log_id]->fd);
-  /* bzen_free(fmtstr); */
+  bzen_log_format_message(message, log_message_buffers[log_id], BZEN_LOG_MESSAGE_MAX_CHARS);
+  status = fputs(log_message_buffers[log_id], log_locks[log_id]->fd);
   if (status == EOF)
     {
       result = -1;
@@ -566,10 +606,9 @@ int bzen_log_write_stat(const char* name,
       goto WRITE_FAIL;
     }
 
-  /* Write the event line. */
-  /* fmtstr = bzen_log_event_line(code); */
-  status = fputs(bzen_log_event_line(code), log_locks[log_id]->fd);
-  /* bzen_free(fmtstr); */
+    /* Write the event line. */
+  bzen_log_event_line(code, log_evtline_buffers[log_id], BZEN_LOG_EVENT_LINE_MAX_CHARS);
+  status = fputs(log_evtline_buffers[log_id], log_locks[log_id]->fd);
   if (status == EOF)
     {
       result = -1;
@@ -577,9 +616,8 @@ int bzen_log_write_stat(const char* name,
     }
 
   /* Write the message. */
-  /* fmtstr = bzen_log_format_message(message); */
-  status = fputs(bzen_log_format_message(message), log_locks[log_id]->fd);
-  /* bzen_free(fmtstr); */
+  bzen_log_format_message(message, log_message_buffers[log_id], BZEN_LOG_MESSAGE_MAX_CHARS);
+  status = fputs(log_message_buffers[log_id], log_locks[log_id]->fd);
   if (status == EOF)
     {
       result = -1;
