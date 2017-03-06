@@ -46,31 +46,25 @@
 /**
  * Max number of chars in log path.
  */
-const size_t BZEN_LOG_MAX_PATH_CHARS = 255;
-#define BZEN_LOG_MAX_PATH_CHARS BZEN_LOG_MAX_PATH_CHARS
+#define BZEN_LOG_MAX_PATH_CHARS 255
 
 /**
  * Log line lengths, string buffers  and delimiters etc.
  */
-const size_t BZEN_LOG_LINE_MAX_CHARS = 80;
-#define BZEN_LOG_LINE_MAX_CHARS BZEN_LOG_LINE_MAX_CHARS
+#define BZEN_LOG_LINE_MAX_CHARS 80
 
-const char* BZEN_LOG_ENTRY_DELIMITER = "\t--\n";
-#define BZEN_LOG_ENTRY_DELIMITER BZEN_LOG_ENTRY_DELIMITER
+#define BZEN_LOG_ENTRY_DELIMITER  "\t--\n"
 
-const size_t BZEN_LOG_EVENT_LINE_MAX_CHARS = 80;
-#define BZEN_LOG_EVENT_LINE_MAX_CHARS BZEN_LOG_EVENT_LINE_MAX_CHARS
+#define BZEN_LOG_EVENT_LINE_MAX_CHARS BZEN_LOG_LINE_MAX_CHARS
 
-const size_t BZEN_LOG_MESSAGE_MAX_CHARS = 1024;
-#define BZEN_LOG_MESSAGE_MAX_CHARS BZEN_LOG_MESSAGE_MAX_CHARS
+#define BZEN_LOG_MESSAGE_MAX_CHARS 1024
 
-const size_t BZEN_LOG_EVENT_LINE_DTM_LEN = sizeof(char) * 32;
+#define BZEN_LOG_EVENT_LINE_DTM_LEN (sizeof(char) * 32)
 
 /**
  * Default fopen() attribute (append).
  */
-const char* BZEN_LOG_FOPEN_DEFAULT_ATTR = "a";
-#define BZEN_LOG_FOPEN_DEFAULT_ATTR BZEN_LOG_FOPEN_DEFAULT_ATTR
+#define BZEN_LOG_FOPEN_DEFAULT_ATTR "a"
 
 /**
  * @typedef bzen_log_stat_t

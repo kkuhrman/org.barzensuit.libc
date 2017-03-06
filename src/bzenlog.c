@@ -91,6 +91,8 @@ int bzen_log_close_all()
   int log_id;
   int result;
 
+  /* @todo: only process/thread, which opened the log should be permitted to 
+     to close it, no? */
   for (log_id = 0; log_id < logs_used; log_id++)
     {
       if (log_locks[log_id]->status == 'o')
@@ -323,7 +325,9 @@ int bzen_log_open(const char* name, const char* attr)
   int status;
   int result;
 
-  /* Attempt to open the directory for test file output. */
+  /* Attempt to open the directory for test file output. 
+     @todo: This should really be in an /etc/conf file.
+   */
   logdir = (char*)getenv("BZEN_LOG_DIR");
   result = access(logdir, R_OK | W_OK);
   if (result < 0)
