@@ -155,7 +155,6 @@ static int  bzen_log_event_line(bzenlog_severity_code_t code,
   real_group_id = getgid();
 
   /* Write formatted event line. */
-  memset(buffer, 0, size);
   sprintf(buffer,
 	  "%s %s %c %6d %6d %6d %6d\n", 
 	  event_time, 
@@ -238,7 +237,6 @@ static int  bzen_log_format_message(const char* message,
   fmt_pos = 0;
   line_char_count = 0;
   last_space = 0;
-  memset(buffer, 0, size);
   while (raw_pos < unfmtmsg_size)
     {
       /* Get next char in message. */
