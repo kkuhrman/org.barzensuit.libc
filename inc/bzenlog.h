@@ -96,6 +96,21 @@ enum BZENLOG_SEVERITY_CODE
 typedef unsigned short int bzenlog_severity_code_t;
 
 /**
+ * Report to syslog failure to access log resource.
+ *
+ * @param const char* package Name of package reporting error.
+ * @param const char* resource Name of resource package could not access.
+ * @param const char* function Name of function which returned a fail code.
+ * @param const int code Error code returned by access function.
+ *
+ * @return void.
+ */
+static void bzen_log_handle_access_fail(const char* package,
+					const char* resource,
+					const char* function,
+					int code);
+
+/**
  * Close the given named log.
  *
  * The 'close()' functions simply close the encapsulated log file.

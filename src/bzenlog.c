@@ -22,6 +22,7 @@
 #include <config.h>
 #include <stdio.h>
 #include <string.h>
+#include <syslog.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include "bzenmem.h"
@@ -56,6 +57,28 @@ static bzen_loglock_t** log_locks = NULL;
  */
 static size_t logs_used = 0;
 static size_t logs_allocated = 0;
+
+/* Report to syslog failure to access log resource. */
+static void bzen_log_handle_access_fail(const char* package,
+					const char* resource,
+					const char* function,
+					int code)
+{
+  char syslog_msg[BZEN_LOG_MESSAGE_MAX_CHARS];
+
+  /* Open syslog facility. */
+  openlog (package, LOG_PERROR, LOG_USER);
+
+  /* Format message. */
+  sprintf(syslog_msg, "%s failed to access log resource %s. Function %s returned %d",
+	    package, resource, function, code);
+
+  /* Send message to syslog. */
+  syslog (LOG_WARNING, syslog_msg);
+
+  /* Close log. */
+  closelog ();
+}
 
 /* Close the given named log. */
 int bzen_log_close(const char* name)
@@ -330,6 +353,7 @@ int bzen_log_open(const char* name, const char* attr)
   result = access(logdir, R_OK | W_OK);
   if (result < 0)
   {
+    bzen_log_handle_access_fail(PACKAGE_NAME, name, "access", result);
     goto OPEN_FAIL;
   }
 
