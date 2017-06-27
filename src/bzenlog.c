@@ -30,6 +30,11 @@
 #include "bzenlog.h"
 
 /**
+ * The default directory where log files are written to.
+ */
+static char logdirbuf[BZEN_LOG_MAX_PATH_CHARS];
+
+/**
  * Default number of logs.
  */
 const int BZEN_DEFAULT_NUMBER_LOGS = 4;
@@ -135,6 +140,31 @@ int bzen_log_close_all()
     }
 
   return result;
+}
+
+/* Returns the full path to the log files directory. */
+const char* bzen_log_dir()
+{
+  const char* logdir;
+  int result;
+  
+  /* First, check if logs directory is stored as environment variable. */
+  logdir = (char*)getenv("BZEN_LOG_DIR");
+  if (logdir == NULL)
+    {
+      goto FIND_DIR_FAIL;
+    }
+
+  result = access(logdir, R_OK | W_OK);
+  if (result < 0)
+  {
+    bzen_log_handle_access_fail(PACKAGE_NAME, logdir, "access", result);
+    logdir = NULL;
+  }
+
+ FIND_DIR_FAIL:
+
+  return logdir;
 }
 
 /* Generate event line text. */
@@ -346,16 +376,13 @@ int bzen_log_open(const char* name, const char* attr)
   int status;
   int result;
 
-  /* Attempt to open the directory for test file output. 
-     @todo: This should really be in an /etc/conf file.
-   */
-  logdir = (char*)getenv("BZEN_LOG_DIR");
-  result = access(logdir, R_OK | W_OK);
-  if (result < 0)
-  {
-    bzen_log_handle_access_fail(PACKAGE_NAME, name, "access", result);
-    goto OPEN_FAIL;
-  }
+  /* Attempt to open the directory for test file output. */
+  logdir = bzen_log_dir();
+  if (logdir == NULL)
+    {
+      result = -1;
+      goto OPEN_FAIL;
+    }
 
   /* Allocate FILE and mutex for log if not exists. */
   if (log_locks == NULL)

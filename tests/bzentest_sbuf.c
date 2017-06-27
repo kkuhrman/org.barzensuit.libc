@@ -149,7 +149,7 @@ int main (int argc, char *argv[])
     }
 
   /* Read back test data from stream and verify against source. */
-  for (nchar = 0; nchar < num_test_buffers; nchar++)
+  for (nchar = 0; nchar < sbuf_test_data_len; nchar++)
     {
       expected = sbuf_test_data[nchar];
       actual = bzen_sbuf_getc(cbuflock[0]);

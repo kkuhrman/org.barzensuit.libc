@@ -44,6 +44,11 @@
 #include <sys/types.h>
 
 /**
+ * Default name of directory where log files are written to.
+ */
+#define BZEN_LOG_DIR_DEFAULT_NAME "bzenlog"
+
+/**
  * Max number of chars in log path.
  */
 #define BZEN_LOG_MAX_PATH_CHARS 255
@@ -135,6 +140,17 @@ int bzen_log_close(const char* name);
  * @return int 0 If all log files are closed, otherwise -1.
  */
 int bzen_log_close_all();
+
+/**
+ * Returns the full path to the log files directory.
+ *
+ * Function will first seek an accesible directory defined by the environment
+ * variable BZEN_LOG_DIR. If this fails, it will look for an accesible directory
+ * relative to the PWD of the program. If both searches fail, it returns NULL.
+ *
+ * @return const char* path.
+ */
+const char* bzen_log_dir();
 
 /**
  * Generate event line text.

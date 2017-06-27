@@ -45,7 +45,8 @@ int main (int argc, char *argv[])
   pthread_t thread;
   int status;
   int wait_time;
-  int* exit_code;
+  int exit_code;
+  int* vptr;
 
   wait_time = 1;
   status = bzen_thread_create(&thread, NULL, bzentest_thread_routine, &wait_time);
@@ -54,19 +55,20 @@ int main (int argc, char *argv[])
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
 
-  *exit_code = 0;
-status = bzen_thread_join(thread, (void**) &exit_code);
+  exit_code = 0;
+  vptr = &exit_code;
+  status = bzen_thread_join(thread, (void**) &vptr);
   if (BZENPASS != BZENTEST_EQUALS_N(0, status))
     {
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
 
-  if (BZENPASS != BZENTEST_EQUALS_N(BZENTEST_EXIT_SUCCESS, *exit_code))
+  if (BZENPASS != BZENTEST_EQUALS_N(BZENTEST_EXIT_SUCCESS, exit_code))
     {
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
 
-  bzen_thread_exit(exit_code);
+  bzen_thread_exit(&exit_code);
 
   return result;
 }

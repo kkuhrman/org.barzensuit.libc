@@ -47,14 +47,11 @@
 /* libzenc includes */
 
 /* A default prefix for things such as local addresses. */
-const char* BZENSOCK_PREFIX = "BZENSOCK_";
-#define BZENSOCK_PREFIX BZENSOCK_PREFIX
+#define BZENSOCK_PREFIX "BZENSOCK_"
 
 /* socket is on server or client end of connection. */
-const int BZENSOCK_SERVER = 0x00000100;
-const int BZENSOCK_CLIENT = 0x00001000;
-#define BZENSOCK_SERVER BZENSOCK_SERVER
-#define BZENSOCK_CLIENT BZENSOCK_CLIENT
+#define BZENSOCK_SERVER 0x00000100
+#define BZENSOCK_CLIENT 0x00001000
 
 /**
  * Accept connection request.

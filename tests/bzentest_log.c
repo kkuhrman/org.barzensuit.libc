@@ -50,18 +50,16 @@ If that wasn't enough, the noisy chicken came along and did the very same thing.
 int main (int argc, char *argv[])
 {
   int log_id;
-  const char* logdir = getenv("BZEN_LOG_DIR");
-  int testdir;
+  const char* logdir;
   int status;
   int result;
   
   /* Attempt to open the directory for test file output. */
-  testdir = access(logdir, R_OK | W_OK);
-  if (BZENPASS != BZENTEST_FALSE(testdir < 0))
+  logdir = bzen_log_dir();
+  if (BZENPASS == BZENTEST_FALSE(logdir != NULL))
     {
-      perror("access");
       fprintf (stderr, 
-	       "\n\tCould not access log dir specified @ %s.\n\tSee package README for help.", 
+	       "\n\tCould not access log dir specified @ %s.\n\tSee package README for help.\n", 
 	       logdir);
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
