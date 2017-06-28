@@ -32,6 +32,7 @@ AM_CPPFLAGS = \
 # API header files to install
 bzenincdir = $(includedir)/bzenc
 bzeninc_HEADERS = \
+	$(top_srcdir)/inc/bzendbug.h \
 	$(top_srcdir)/inc/bzenlog.h \
 	$(top_srcdir)/inc/bzenmem.h \
 	$(top_srcdir)/inc/bzensbuf.h \
@@ -48,6 +49,8 @@ pkgconfig_DATA = libbzenc.pc
 lib_LTLIBRARIES = libbzenc.la
 
 libbzenc_la_SOURCES = \
+	bzendbug.c \
+	bzendbug.h \
 	bzenlog.c \
 	bzenlog.h \
 	bzenmem.c \

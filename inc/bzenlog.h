@@ -41,6 +41,7 @@
 #define _BZEN_LOG_H_
 
 #include <config.h>
+#include <stdio.h>
 #include <sys/types.h>
 
 /**

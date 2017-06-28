@@ -1,4 +1,10 @@
-2017-03-02  Karl Kuhrman  <kkuhrman@pelican>
+2017-06-28  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* configure.ac: advanced version to 0.1.8
+	* src/bzendbug.c: added bzen_dbug_log_buffer_dump()
+	* tests/bzentest_dbug.c: Full unit test of bzen_dbug_log_buffer_dump()
+	
+2017-03-02  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac: advanced version to 0.1.7
 	* src/bzenlog.c: Full implementation of open, close, write for multiple logs
@@ -6,14 +12,14 @@
 	* tests/bzentest_log.c (main): Full unit testing for open, close, write
 	* tests/Makefile.am: Added bzentest_log
 
-2017-02-28  Karl Kuhrman  <kkuhrman@pelican>
+2017-02-28  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac: advanced version to 0.1.6
 	* src/bzensbuf.c: fixed bug in bzen_sbuf_unlock
 	* src/bzensock.c: Implement encapsulation of thread create, join, exit
 	* tests/bzentest_thread.c: add unit testing for thread functions
 
-2017-02-27  Karl Kuhrman  <kkuhrman@pelican>
+2017-02-27  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac: advanced version to 0.1.5; new convention for gnulib, m4 etc
 	* src/Makefile.am: removed obsolete char.h char.c

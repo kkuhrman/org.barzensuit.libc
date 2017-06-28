@@ -30,13 +30,8 @@
 const unsigned short int BZENTEST_BUFFER_SIZE = 128;
 const unsigned short int BZENTEST_N_BUFFERS = 1;
 
-const char* sbuf_test_data = 
-  "ABCDEFGHIJKLMNOPQRSTUVWX \
-   YZabcdefghijklmnopqrstuv \
-   wxyz0123456789`~!@#$%^&* \
-   AaBbCcDdE()-_=+,<.>/?;:\\ \
-   [{]}|\'\"\t    \n \
-   \a\b\v\f\r\e \0";
+const char* sbuf_test_data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*   AaBbCcDdE()-_=+,<.>/?;:*[{]}|\'\"xxxxxxxxxxxxxxxABCDEFG\0";
+
 const char* logname = "bzentest-debugging.log";
 
 int main (int argc, char *argv[])

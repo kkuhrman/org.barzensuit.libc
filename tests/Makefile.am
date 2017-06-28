@@ -33,6 +33,7 @@ AM_LDFLAGS = -no-install
 LDADD = ../src/libbzenc.la
 
 check_PROGRAMS = \
+	bzentest_dbug \
 	bzentest_environment \
 	bzentest_log \
 	bzentest_sbuf \
@@ -44,6 +45,7 @@ check_PROGRAMS = \
 	bzentest_scratch
 
 TESTS = \
+	bzentest_dbug \
 	bzentest_environment \
 	bzentest_log \
 	bzentest_sbuf \

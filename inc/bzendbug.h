@@ -28,11 +28,14 @@
 /*
  * Dumps content of buffer to a log file.
  *
- * @param bzen_cbuflock buf Buffer containing data to dump to log.
+ * @param bzen_cbuflock_t* cbuflock Buffer containing data to dump to log.
  * @param const char* name The name of the log to write to.
+ * @param size_t size How much to dump? For whole buffer use cbuflock->size.
  *
  * @return size_t Number of characters written to log or -1 on error.
  */
-size_t bzen_dbug_log_buffer_dump(bzen_cbuflock buf, const char* name);
+size_t bzen_dbug_log_buffer_dump(bzen_cbuflock_t* cbuflock, 
+				 const char* name,
+				 size_t size);
 
 #endif /* __BZEN_DBUG_H_ */

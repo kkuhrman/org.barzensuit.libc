@@ -21,11 +21,39 @@
 
 #include <config.h>
 #include "bzenlog.h"
+#include "bzenmem.h"
 #include "bzendbug.h"
 
 /* Dumps content of buffer to a log file. */
-size_t bzen_dbug_log_buffer_dump(bzen_cbuflock buf, const char* name)
+size_t bzen_dbug_log_buffer_dump(bzen_cbuflock_t* cbuflock, 
+				 const char* name,
+				 size_t size)
 {
   size_t nchars = -1;
+  int charid;
+  char* dumpstr;
+  int status;
+
+  /* Allocate string for saving buffer content. */
+  dumpstr = (char*)bzen_malloc(sizeof(char) * cbuflock->size);
+
+  /* attempt to rewind buffer. */
+  status = bzen_sbuf_rewind(cbuflock);
+  if (status == 0)
+    {
+      /* nchars = 0; */
+      do
+	{
+	  dumpstr[++nchars] = bzen_sbuf_getc(cbuflock); 
+	} while ((dumpstr[nchars] != EOF) && (nchars < size));
+    }
+
+  /* Write to debugging log. */
+  status = bzen_log_write_stat(name, BZENLOG_DEBUG, dumpstr);
+  if (status != 0)
+    {
+      nchars = -1;
+    }
+
   return nchars;
 }
