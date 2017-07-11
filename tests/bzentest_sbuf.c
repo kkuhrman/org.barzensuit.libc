@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include <string.h>
 
 /* libbzenc */
@@ -38,6 +39,10 @@ const char* sbuf_test_data =
    [{]}|\'\"\t    \n \
    \a\b\v\f\r\e \0";
 
+const char* file_test_data = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
+
+const char* file_test_name = "bzentest_sbuf.txt";
+
 int main (int argc, char *argv[])
 {
   int result = BZEN_TEST_EVAL_PASS;
@@ -47,6 +52,7 @@ int main (int argc, char *argv[])
   int cbuflock_id;
   int num_test_buffers;
   int sbuf_test_data_len;
+  int file_test_data_len;
   int nchar, expected, actual;
 
   /* Check counters. */
@@ -183,6 +189,65 @@ int main (int argc, char *argv[])
 	  goto END_TEST;
 	}
     }
+
+  /* Test buffer with a file from storage. */
+  char tempfile[1024];
+  char* tempdir = getenv("BZENTEST_TEMP_DIR");
+  sprintf(tempfile, "%s/%s", tempdir, file_test_name);
+  FILE* fbuf = fopen(tempfile, "w+");
+  if (BZENPASS != BZENTEST_TRUE(fbuf != NULL))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  fputs(file_test_data, fbuf);
+  cbuflock[0] = NULL;
+  cbuflock[0] = bzen_sbuf_create_file(fbuf);
+  if (BZENPASS != BZENTEST_TRUE(cbuflock[0] != NULL))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  /* Rewind the test buffer. */
+  status = bzen_sbuf_rewind(cbuflock[0]);
+  if (BZENPASS != BZENTEST_EQUALS_N(0, status))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  /* Read back test data from stream and verify against source. */
+  file_test_data_len = strlen(file_test_data);
+  for (nchar = 0; nchar < file_test_data_len; nchar++)
+    {
+      expected = file_test_data[nchar];
+      actual = bzen_sbuf_getc(cbuflock[0]);
+      if (actual == EOF)
+	{
+	  fprintf(stderr, "\n\tbzen_sbuf_getc() reached EOF at pos %d\n", nchar);
+	  break;
+	}
+      if (BZENPASS != BZENTEST_EQUALS_N(expected, actual))
+	{
+	  fprintf(stderr, "\n\tbzen_sbuf_getc() char mismatch (%c, %c) pos %d\n", 
+		  expected,
+		  actual,
+		  nchar);
+	  result = BZEN_TEST_EVAL_FAIL;
+	  goto END_TEST;
+	}
+    }
+  /* Destroy buffer. Zero keep_open flag instructing fn to close stream. */
+  timeout = 1;
+  cbuflock[0]->keep_open = 0;
+  status = bzen_sbuf_destroy(cbuflock[0], timeout);
+  if (BZENPASS != BZENTEST_EQUALS_N(0, status))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  /* Attempt to close stream should fail. */
+  status = fcntl(fbuf, F_GETFL);
+  if (BZENPASS != BZENTEST_TRUE(status == -1))
+     {
+       fprintf(stderr, "\n\tFD=%d\n", status);
+       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+     }
 
  END_TEST:
 
