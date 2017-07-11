@@ -33,13 +33,15 @@ AM_CPPFLAGS = \
 bzenincdir = $(includedir)/bzenc
 bzeninc_HEADERS = \
 	$(top_srcdir)/inc/bzendbug.h \
+	$(top_srcdir)/inc/bzenipc.h \
 	$(top_srcdir)/inc/bzenlog.h \
 	$(top_srcdir)/inc/bzenmem.h \
 	$(top_srcdir)/inc/bzensbuf.h \
 	$(top_srcdir)/inc/bzensock.h \
 	$(top_srcdir)/inc/bzentest.h \
 	$(top_srcdir)/inc/bzenthread.h
-	$(top_srcdir)/inc/bzentime.h
+	$(top_srcdir)/inc/bzentime.h \
+	$(top_srcdir)/inc/bzenyaml.h
 
 # package details
 pkgconfigdir = $(libdir)/pkgconfig
@@ -51,6 +53,8 @@ lib_LTLIBRARIES = libbzenc.la
 libbzenc_la_SOURCES = \
 	bzendbug.c \
 	bzendbug.h \
+	bzenipc.c \
+	bzenipc.h \
 	bzenlog.c \
 	bzenlog.h \
 	bzenmem.c \
@@ -63,7 +67,9 @@ libbzenc_la_SOURCES = \
 	bzentest.h \
 	bzenthread.c \
 	bzenthread.h \
-	bzentime.h
+	bzentime.h \
+	bzenyaml.c \
+	bzenyaml.h
 
 # Gnu Lib
 libbzenc_la_LIBADD = $(LTLIBINTL) $(top_builddir)/lib/gnulib/libgnu.a

@@ -1,6 +1,6 @@
 /**
- * @file:	bzentest_environment.c
- * @brief:	Unit test the test environment settings.
+ * @file:	bzentest_yaml.c
+ * @brief:	Unit test YAML processing functions.
  *
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
  * @license:	GPLv3+: GNU GPL version 3
@@ -23,37 +23,41 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <dirent.h>
 
 /* libzenc includes */
+#include "bzentest.h"
+#include "bzenyaml.h"
 
 int main (int argc, char *argv[])
 {
-  int result = 0;
-  const char* destdir;
-  DIR* testdir;
-  
-  /* Attempt to open the directory for test file output. */
-  destdir = getenv("BZENTEST_TEMP_DIR");
-  if (destdir == NULL)
-    {
-      perror("getenv");
-      fprintf (stderr, "Could not read environmkent variable BZENTEST_TEMP_DIR");
-      result = -1;
-      goto END_TEST;
-    }
-  testdir = opendir(destdir);
-  if (testdir == NULL)
-    {
-      perror("opendir");
-      fprintf (stderr, "socket temp dir = %s\n", destdir);
-      result = -1;
-      goto END_TEST;
-    }
-  
-  /* Close the test directory. */
-  closedir(testdir);
+  int result = BZEN_TEST_EVAL_PASS;
+  int status;
+  const char* testfilev, testfilei;
 
-END_TEST:
+  bzen_yaml_parser_t* parser;
+
+  /* Test bzen_yaml_parser_create(). */
+  parser = bzen_yaml_parser_create();
+  if (BZENPASS != BZENTEST_TRUE(parser != NULL))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* Test bzen_yaml_parser_destroy(). */
+  status = bzen_yaml_parser_destroy(parser);
+  if (BZENPASS != BZENTEST_EQUALS_N(status, 0))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  testfilev = getenv("BZENTEST_FILE_YAML_VALID");
+  FILE* fin = fopen(testfilev, "r");
+  if (BZENPASS != BZENTEST_TRUE(fin != NULL))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  fclose(fin);
+
+ END_TEST:
   return result;
 }

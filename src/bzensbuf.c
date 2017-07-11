@@ -46,6 +46,11 @@ const size_t BZEN_SBUF_DEFAULT_SIZE = 1024;
 #define BZEN_SBUF_DEFAULT_SIZE BZEN_SBUF_DEFAULT_SIZE
 
 /**
+ * FILE size is not known.
+ */
+#define BZEN_FILE_SIZE_UNKNOWN -1;
+
+/**
  * Encapsulated buffers.
  */
 static FILE** buffers = NULL;
@@ -71,11 +76,47 @@ size_t bzen_sbuf_count_used()
 /* Allocate memory for a new stream buffer. */
 bzen_cbuflock_t* bzen_sbuf_create(size_t size)
 {
-  size_t buffer_struct_size;
-  int status;
+  /* Create the buffer as an IO stream (FILE) in memory.
+     Passing a NULL pointer to fmemopen is intentional. It results in
+     the function dynamically allocating memory for the buffer, 
+     preventing direct access to it except through stdio functions,
+     thus providing for better built-in thread-safety via FILE locks
+     and also cleans up heap when fclose() is called.  */
+  bzen_cbuflock_t* pcbuflock;
+  FILE* file;
+  size_t new_buffer_size;
+
+  new_buffer_size = xcast_size_t(sizeof(int) * size);
+  file = fmemopen(NULL, new_buffer_size, "r+");
+  pcbuflock = bzen_sbuf_create_file(file);
+  if (pcbuflock == NULL)
+    {
+      goto CREATE_FAIL;
+    }
+
+  /* bzen_sbuf_create_file() leaves decision to close stream to application. */
+  pcbuflock->keep_open = 0;
+  pcbuflock->size = new_buffer_size;
+
+ CREATE_FAIL:
+
+  return pcbuflock;
+}
+
+/* Allocate memory for new character buffer and set file decriptor as I/O stream. */
+bzen_cbuflock_t* bzen_sbuf_create_file(FILE* file)
+{
+  bzen_cbuflock_t* pcbuflock;
+
+  if (file == NULL)
+    {
+      /* @todo: error logging */
+      goto CREATE_FAIL;
+    }
 
   /* Allocate default number of buffers if not already done. */
-  bzen_cbuflock_t* pcbuflock;
+  size_t buffer_struct_size;
+  int status;
   unsigned short int buffer_id;
   if (buffers == NULL)
     {
@@ -100,6 +141,10 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
   
   /* Allocate memory for buffer struct. */
   pcbuflock = (bzen_cbuflock_t*)bzen_malloc(buffer_struct_size);
+  if (pcbuflock == NULL)
+    {
+      goto CREATE_FAIL;
+    }
 
   /* Initialize the mutex. */
   status = bzen_mutex_init(&pcbuflock->mutex, NULL);
@@ -110,25 +155,14 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
       goto CREATE_FAIL;
     }
 
-  /* Create the buffer as an IO stream (FILE) in memory.
-     Passing a NULL pointer to fmemopen is intentional. It results in
-     the function dynamically allocating memory for the buffer, 
-     preventing direct access to it except through stdio functions,
-     thus providing for better built-in thread-safety via FILE locks
-     and also cleans up heap when fclose() is called.  */
+  /* Set file descriptor as I/O stream.  */
   buffer_id = buffers_used++;
-  size_t new_buffer_size = xcast_size_t(sizeof(int) * size);
-  buffers[buffer_id] = fmemopen(NULL, new_buffer_size, "r+");
-  if (buffers[buffer_id] == NULL)
-    {
-      bzen_free(pcbuflock);
-      pcbuflock = NULL;
-      goto CREATE_FAIL;
-    }
+  buffers[buffer_id] = file;
 
   /* Initialize other members. */
-  pcbuflock->id = buffer_id;
-  pcbuflock->size = new_buffer_size;
+  pcbuflock->id = buffer_id;  
+  pcbuflock->keep_open = 1; /* application is responsible for fclose(). */
+  pcbuflock->size = BZEN_FILE_SIZE_UNKNOWN; /* @todo: */
 
  CREATE_FAIL:
 
@@ -143,6 +177,13 @@ int bzen_sbuf_destroy(bzen_cbuflock_t* cbuflock, double timeout)
   clock_t end_time;
   double wait_time;
 
+  if (cbuflock == NULL)
+    {
+      /* Nothing to do. */
+      result = 0;
+      goto DESTROY_FAIL;
+    }
+
   /* Initialize clock timer.*/
   start_time = clock();
 
@@ -154,13 +195,16 @@ int bzen_sbuf_destroy(bzen_cbuflock_t* cbuflock, double timeout)
       result = bzen_mutex_destroy(&cbuflock->mutex);
       if (result == 0)
 	{
-	  /* fclose() will free buffer memory on heap. */
-	  result = fclose(buffers[cbuflock->id]);
-	  if (result != 0)
+	  if (cbuflock->keep_open == 0)
 	    {
-	      /* @todo: this leaves us with a file close error and 
-	         a destroyed mutex, which is bad. */
-	      goto DESTROY_FAIL;
+	      /* fclose() will free buffer memory on heap. */
+	      result = fclose(buffers[cbuflock->id]);
+	      if (result != 0)
+		{
+		  /* @todo: this leaves us with a file close error and 
+		     a destroyed mutex, which is bad. */
+		  goto DESTROY_FAIL;
+		}
 	    }
 	  buffers[cbuflock->id] = NULL;
 	  bzen_free(cbuflock);

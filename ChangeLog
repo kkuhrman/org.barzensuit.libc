@@ -1,3 +1,22 @@
+2017-07-11  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* inc/bzenyaml.h: add bzen_yaml_error_code_t to bzen_yaml_parser_t
+	* src/bzenyaml.c: initial define bzen_yaml_parser_restore()
+	
+2017-07-07  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* inc/bzenetc.h: declare log configuration file type
+	* inc/bzenyaml.h: declare bzen_yaml_parser_create(), bzen_yaml_parser_destroy()
+	* src/bzenyaml.c: define bzen_yaml_parser_create(), bzen_yaml_parser_destroy()
+	* src/Makefile.ac: add bzenyaml.c & bzenyaml.h
+	
+2017-07-06  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* configure.ac: advanced version to 0.2.0
+	* inc/bzenipc.h: declare bzen_ipc_fork()
+	* src/bzenipc.c: define bzen_ipc_fork()
+	* src/Makefile.ac: add bzenipc.c & bzenipc.h
+	
 2017-06-28  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* configure.ac: advanced version to 0.1.8

@@ -42,6 +42,7 @@
 typedef struct _bzen_cbuflock_s
 {
   unsigned short int id;
+  unsigned short int keep_open;
   pthread_mutex_t mutex;
   size_t size;
 } bzen_cbuflock_t;
@@ -68,6 +69,23 @@ size_t bzen_sbuf_count_used();
  * @return bzen_cbuflock_t* Pointer to new buffer lock.
  */
 bzen_cbuflock_t* bzen_sbuf_create(size_t size);
+
+/**
+ * Allocate memory for new character buffer and set file decriptor as I/O stream.
+ *
+ * bzen_sbuf_create_file() behaves the same as bzen_sbuf_create() except the 
+ * encapsulated I/O stream (FILE*) is first opened by the application and passed
+ * as a parameter rather than being allocated on the heap. This stream will not 
+ * be closed on a call to bzen_sbuf_destroy unless the application explicitly 
+ * sets the keep_open attribute to 0. Otherwise, the application is reposnsible 
+ * for closing the stream after calling bzen_sbuf_destroy(), which in such cases
+ * will only free up the associated mutex etc. and decrement counters.
+ *
+ * @param[in] FILE* file Descriptor of a file open for reading.
+ *
+ * @return bzen_cbuflock_t* Pointer to new buffer lock.
+ */
+bzen_cbuflock_t* bzen_sbuf_create_file(FILE* file);
 
 /**
  * Thread-safe stream buffer destructor.

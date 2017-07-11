@@ -102,6 +102,18 @@ enum BZENLOG_SEVERITY_CODE
 typedef unsigned short int bzenlog_severity_code_t;
 
 /**
+ * @typedef bzen_log_option_t
+ * 
+ * @property bzenlog_severity_code_t severity_code
+ * @property char** log_names
+ */
+typedef struct _bzen_log_option_s
+{
+  bzenlog_severity_code_t severity_code;
+  char** log_names;
+} bzen_log_option_t;
+
+/**
  * Report to syslog failure to access log resource.
  *
  * @param const char* package Name of package reporting error.

@@ -1,6 +1,6 @@
 /**
- * @file:	bzendbug.h
- * @brief:	Library debugging utilities.
+ * @file:	bzenetc.h
+ * @brief:      Comprises functions for editable text configuration (etc) files.
  * 
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
  * @license:	GPLv3+: GNU GPL version 3
@@ -19,29 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BZEN_DBUG_H_
-#define __BZEN_DBUG_H_
+#ifndef _BZEN_ETC_H_
+#define _BZEN_ETC_H_
 
 #include <config.h>
-#include <assert.h>
-#include "bzensbuf.h"
 
 /**
- * @todo: what's in and what's out based on NDEBUG flag?
+ * @enum Configuration file types.
  */
-#define BZEN_ASSERT(expression) assert(expression)
+enum BZENETC_TYPE
+  {
+    BZENETC_LOG
+  };
 
-/*
- * Dumps content of buffer to a log file.
- *
- * @param bzen_cbuflock_t* cbuflock Buffer containing data to dump to log.
- * @param const char* name The name of the log to write to.
- * @param size_t size How much to dump? For whole buffer use cbuflock->size.
- *
- * @return size_t Number of characters written to log or -1 on error.
+/**
+ * @typedef bzen_etc_log
  */
-size_t bzen_dbug_log_buffer_dump(bzen_cbuflock_t* cbuflock, 
-				 const char* name,
-				 size_t size);
+typedef struct _bzen_etc_log_s
+{
+  unsigned short int severity_code;
+} bzen_etc_log_t;
 
-#endif /* __BZEN_DBUG_H_ */
+#endif /* _BZEN_ETC_H_ */

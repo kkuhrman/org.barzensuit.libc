@@ -42,7 +42,8 @@ check_PROGRAMS = \
 	bzentest_socket_fail \
 	bzentest_ut \
 	bzentest_thread \
-	bzentest_scratch
+	bzentest_scratch \
+	bzentest_yaml
 
 TESTS = \
 	bzentest_dbug \
@@ -54,13 +55,25 @@ TESTS = \
 	bzentest_socket_fail \
 	bzentest_ut \
 	bzentest_thread \
-	bzentest_scratch
+	bzentest_scratch \
+	bzentest_yaml
+
+EXTRA_DIST = $(TESTS)
 
 TESTS_ENVIRONMENT = \
 	BZENTEST_TEMP_DIR=$(datarootdir)/bzentest \
 	BZENTEST_SOCKET_LOCAL_ADDR="bzentestsock"; \
 	export BZENTEST_TEMP_DIR BZENTEST_SOCKET_LOCAL_ADDR;
 
-EXTRA_DIST = $(TESTS)
+TESTS_ENVIRONMENT += \
+	BZEN_LOG_DIR=$(datarootdir)/bzenlog; \
+	export BZEN_LOG_DIR;
 
+EXTRA_DIST += \
+	$(top_srcdir)/tests/bzentest_yaml/invalidyaml.conf \
+	$(top_srcdir)/tests/bzentest_yaml/validyanl.conf
 
+TESTS_ENVIRONMENT += \
+	BZENTEST_FILE_YAML_INVALID=$(top_srcdir)/tests/bzentest_yaml/invalidyaml.conf \
+	BZENTEST_FILE_YAML_VALID=$(top_srcdir)/tests/bzentest_yaml/validyaml.conf; \
+	export BZENTEST_FILE_YAML_INVALID BZENTEST_FILE_YAML_VALID;
