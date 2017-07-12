@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <fcntl.h>
 #include "bzendbug.h"
 #include "bzenmem.h"
 #include "bzenyaml.h"
@@ -113,27 +114,44 @@ int bzen_yaml_parser_restore(bzen_yaml_parser_t* parser)
   return return_code;
 }
 
-/**
- * Pass FILE* open for reading as input to YAML parser.
- *
- * @param[in,out] bzen_yaml_parser_t* parser YAML Parser.
- * @param[in] FILE* file Descriptor of a file open for reading.
- * 
- * @return void.
- */
+/* Pass FILE* open for reading as input to YAML parser. */
 void bzen_yaml_parser_set_input_file(bzen_yaml_parser_t* parser, FILE* file)
 {
+  int fd; /* File descriptor */
+  int status;
+
+  /** Non-null pointers are expected. */
+  assert(parser);
+  assert(file);
+
+  /** A valid file descriptor is expected. */
+  fd = fileno(file);
+  status = fcntl(fd, F_GETFL);
+  /* status = __freadable(file); */
+  if (status < 0)
+    {
+      /* File cannot be read. */
+      perror("fcntl");
+      /* fprintf(stderr, "\n\t__freadable(fd) returns %d\n", status); */
+      parser->error = BZEN_YAML_ERROR_ACCESS;
+      goto SET_INPUT_FAIL;
+    }
+  
+  /** Set buffer input. */
+  parser->input = bzen_sbuf_create_file(file);
+  if (parser->input == NULL)
+    {
+      /* Failed to allocate memory for bzen_cbuflock_t. */
+      parser->error = BZEN_YAML_ERROR_MALLOC;
+      goto SET_INPUT_FAIL;
+    }
+
+ SET_INPUT_FAIL:
+
+  return;
 }
 
-/**
- * Pass string as input to YAML parser.
- *
- * @param[in,out] bzen_yaml_parser_t* parser YAML Parser.
- * @param[in] const char* input The input data.
- * @param[in] size_t size The size of the input data in bytes.
- * 
- * @return void.
- */
+/* Pass string as input to YAML parser. */
 void bzen_yaml_parser_set_input_string(bzen_yaml_parser_t* parser,
 				       const char* input,
 				       size_t size)

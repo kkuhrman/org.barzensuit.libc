@@ -1,3 +1,14 @@
+2017-07-12  Karl Kuhrman  <kkuhrman@barzensuit.org>
+	* inc/bzenyaml.h: declare bzen_yaml_parser_set_input_file()
+	* src/bzenyaml.c: define bzen_yaml_parser_set_input_file()
+	* tests/bzentest_yaml.c: unit tests bzen_yaml_parser_set_input_file()
+	
+2017-07-11  Karl Kuhrman  <kkuhrman@barzensuit.org>
+
+	* inc/bzensbuf.h: declare bzen_sbuf_create_file()
+	* src/bzensbuf.c: define bzen_sbuf_create_file()
+	* tests/bzentest_sbuf.c: unit tests bzen_sbuf_create_file()
+	
 2017-07-11  Karl Kuhrman  <kkuhrman@barzensuit.org>
 
 	* inc/bzenyaml.h: add bzen_yaml_error_code_t to bzen_yaml_parser_t
@@ -9,6 +20,8 @@
 	* inc/bzenyaml.h: declare bzen_yaml_parser_create(), bzen_yaml_parser_destroy()
 	* src/bzenyaml.c: define bzen_yaml_parser_create(), bzen_yaml_parser_destroy()
 	* src/Makefile.ac: add bzenyaml.c & bzenyaml.h
+	* tests/bzentest_yaml.c: unit tests bzen_yaml_parser_create(), bzen_yaml_parser_destroy()
+	* tests/Makefile.ac: add bzentest_yaml
 	
 2017-07-06  Karl Kuhrman  <kkuhrman@barzensuit.org>
 

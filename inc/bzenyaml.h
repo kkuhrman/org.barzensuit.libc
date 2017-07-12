@@ -61,6 +61,9 @@ typedef enum bzen_yaml_error_code_e
     /** No error. */
     BZEN_YAML_ERROR_NONE,
 
+    /** An error occurred trying to access a resource (e.g. file). */
+    BZEN_YAML_ERROR_ACCESS, 
+
     /** An error occurred on allocating memory. */
     BZEN_YAML_ERROR_MALLOC,
 

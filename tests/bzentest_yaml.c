@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 /* libzenc includes */
 #include "bzentest.h"
@@ -43,20 +44,45 @@ int main (int argc, char *argv[])
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
 
+  /* Test parser with valid YAML from a file. */
+  testfilev = getenv("BZENTEST_FILE_YAML_VALID");
+  FILE* fin = fopen(testfilev, "r");
+  if (BZENPASS != BZENTEST_TRUE(__freadable(fin) != 0))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  bzen_yaml_parser_set_input_file(parser, fin);
+  if (BZENPASS != BZENTEST_TRUE(parser->error == BZEN_YAML_ERROR_NONE))
+    {
+      fprintf(stderr, "\n\tYAML parser produced error code %d file name %s\n", 
+	      parser->error,
+	      testfilev);
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* @todo: test parsing function(s). */
+
+  /* Test the restore state function. */
+  bzen_yaml_parser_restore(parser);
+  if (BZENPASS != BZENTEST_TRUE(parser->error == BZEN_YAML_ERROR_NONE))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* Close the file and make sure set input fn fails. */
+  fclose(fin);
+  bzen_yaml_parser_set_input_file(parser, fin);
+  if (BZENPASS != BZENTEST_TRUE(parser->error == BZEN_YAML_ERROR_ACCESS))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
   /* Test bzen_yaml_parser_destroy(). */
   status = bzen_yaml_parser_destroy(parser);
   if (BZENPASS != BZENTEST_EQUALS_N(status, 0))
     {
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
-
-  testfilev = getenv("BZENTEST_FILE_YAML_VALID");
-  FILE* fin = fopen(testfilev, "r");
-  if (BZENPASS != BZENTEST_TRUE(fin != NULL))
-    {
-      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
-    }
-  fclose(fin);
 
  END_TEST:
   return result;

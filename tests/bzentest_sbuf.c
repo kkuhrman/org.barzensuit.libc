@@ -195,7 +195,7 @@ int main (int argc, char *argv[])
   char* tempdir = getenv("BZENTEST_TEMP_DIR");
   sprintf(tempfile, "%s/%s", tempdir, file_test_name);
   FILE* fbuf = fopen(tempfile, "w+");
-  if (BZENPASS != BZENTEST_TRUE(fbuf != NULL))
+  if (BZENPASS != BZENTEST_TRUE(__fwritable(fbuf) != 0))
     {
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
