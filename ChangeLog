@@ -1,4 +1,9 @@
 2017-07-12  Karl Kuhrman  <kkuhrman@barzensuit.org>
+	* inc/bzenyaml.h: declare bzen_yaml_event create, destroy, restore
+	* src/bzenyaml.c: define bzen_yaml_parser_event create, destroy, restore
+	* tests/bzentest_yaml.c: unit tests bzen_yaml_event create, destro, restore
+	
+2017-07-12  Karl Kuhrman  <kkuhrman@barzensuit.org>
 	* inc/bzenyaml.h: declare bzen_yaml_parser_set_input_file()
 	* src/bzenyaml.c: define bzen_yaml_parser_set_input_file()
 	* tests/bzentest_yaml.c: unit tests bzen_yaml_parser_set_input_file()

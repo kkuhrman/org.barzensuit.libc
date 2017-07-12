@@ -36,10 +36,18 @@ int main (int argc, char *argv[])
   const char* testfilev, testfilei;
 
   bzen_yaml_parser_t* parser;
+  bzen_yaml_event_t* event;
 
   /* Test bzen_yaml_parser_create(). */
   parser = bzen_yaml_parser_create();
   if (BZENPASS != BZENTEST_TRUE(parser != NULL))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+  
+  /* Test bzen_yaml_event_create(). */
+  event = bzen_yaml_event_create();
+  if (BZENPASS != BZENTEST_TRUE(event != NULL))
     {
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }
@@ -73,6 +81,13 @@ int main (int argc, char *argv[])
   fclose(fin);
   bzen_yaml_parser_set_input_file(parser, fin);
   if (BZENPASS != BZENTEST_TRUE(parser->error == BZEN_YAML_ERROR_ACCESS))
+    {
+      BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
+    }
+
+  /* Test bzen_yaml_event_destroy(). */
+  status = bzen_yaml_event_destroy(event);
+  if (BZENPASS != BZENTEST_EQUALS_N(status, 0))
     {
       BZENTEST_EXIT_FAIL(__FILE__, __LINE__);
     }

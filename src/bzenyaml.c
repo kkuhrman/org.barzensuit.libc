@@ -25,14 +25,73 @@
 #include "bzenmem.h"
 #include "bzenyaml.h"
 
-/**
- * Allocate memory for a new YAML parse process state data struct.
- *
- * Application is responsible for freeing allocated memory by calling 
- * @see bzen_yaml_parser_destroy(). 
- *
- * @return bzen_yaml_parser_t* Newly allocated struct or NULL on fail.
- */
+/* Allocate memory for a new YAML event. */
+bzen_yaml_event_t* bzen_yaml_event_create()
+{
+  bzen_yaml_event_t* event;
+  size_t event_size;
+  int status;
+
+  /* Allocate memory for event. */
+  event_size = xcast_size_t(sizeof(bzen_yaml_event_t));
+  event = (bzen_yaml_event_t*)bzen_malloc(event_size);
+  if (event == NULL)
+    {
+      goto CREATE_FAIL;
+    }
+
+  status = bzen_yaml_event_restore(event);
+  if (status != 0)
+    {
+      bzen_yaml_event_destroy(event);
+      goto CREATE_FAIL;
+    }
+
+ CREATE_FAIL:
+
+  return event;
+}
+
+/* Free memory allocated for given YAML event. */
+int bzen_yaml_event_destroy(bzen_yaml_event_t* event)
+{
+  int return_code;
+  double timeout = 3; /* time in seconds to wait for lock on mutex. */
+
+  if (event == NULL)
+    {
+      /* Nothing to do. */
+      return_code = 0;
+      goto DESTROY_FAIL;
+    }
+
+  /* Deallocate memory for event. */
+  bzen_free(event);
+  return_code = 0;
+
+ DESTROY_FAIL:
+
+  return return_code;
+}
+
+/* Restore given YAML event to default state. */
+int bzen_yaml_event_restore(bzen_yaml_event_t* event)
+{
+  int return_code = -1;
+
+  /* A non-null pointer is expected. */
+  BZEN_ASSERT(event);
+
+  /* Initialize event members. */
+  event->type = BZEN_YAML_EVENT_NONE;
+  return_code = 0;
+
+ RESTORE_FAIL:
+  
+  return return_code;
+}
+
+/* Allocate memory for a new YAML parser. */
 bzen_yaml_parser_t* bzen_yaml_parser_create()
 {
   bzen_yaml_parser_t* parser;
@@ -59,13 +118,7 @@ bzen_yaml_parser_t* bzen_yaml_parser_create()
   return parser;
 }
 
-/**
- * Free memory allocated for given data structure.
- *
- * @param[in] bzen_yaml_parser_t* Pointer to memory block to free.
- *
- * @return @c 0 on success @c -1 on error.
- */
+/* Free memory allocated for given YAML parser. */
 int bzen_yaml_parser_destroy(bzen_yaml_parser_t* parser)
 {
   int return_code;
@@ -95,7 +148,32 @@ int bzen_yaml_parser_destroy(bzen_yaml_parser_t* parser)
   return return_code;
 }
 
-/* Restore parser data structure to initial state. */
+/* Get next event in YAML stream. */
+int bzen_yaml_parser_next_event(bzen_yaml_parser_t* parser, bzen_yaml_event_t* event)
+{
+  int status;
+  int return_code = 0;
+
+  /* Expect valid pointers. */
+  BZEN_ASSERT(parser);
+  BZEN_ASSERT(event);
+
+  /* Restore event to default state. */
+  status = bzen_yaml_event_restore(event);
+  if (status != 0)
+    {
+      return_code = -1;
+      goto PARSE_FAIL;
+    }
+
+  /* @todo: get next event data. */
+
+ PARSE_FAIL:
+
+  return return_code;
+}
+
+/* Restore given YAML parser to default state. */
 int bzen_yaml_parser_restore(bzen_yaml_parser_t* parser)
 {
   int return_code = -1;
@@ -121,8 +199,8 @@ void bzen_yaml_parser_set_input_file(bzen_yaml_parser_t* parser, FILE* file)
   int status;
 
   /** Non-null pointers are expected. */
-  assert(parser);
-  assert(file);
+  BZEN_ASSERT(parser);
+  BZEN_ASSERT(file);
 
   /** A valid file descriptor is expected. */
   fd = fileno(file);

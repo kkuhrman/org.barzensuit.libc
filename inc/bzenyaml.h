@@ -81,6 +81,33 @@ typedef enum bzen_yaml_error_code_e
  */
 
 /**
+ * @typedef bzen_yaml_event_code_t
+ * @{
+ */
+typedef enum bzen_yaml_event_code_e
+  {
+    /** No event */
+    BZEN_YAML_EVENT_NONE
+  } bzen_yaml_event_code_t;
+/**
+ * @}
+ */
+
+/**
+ * @typedef bzen_yaml_event_t
+ * @{
+ */
+typedef struct bzen_yaml_event_s
+{
+  /** The event type. */
+  bzen_yaml_event_code_t type;
+
+} bzen_yaml_event_t;
+/**
+ * @}
+ */
+
+/**
  * @typedef bzen_yaml_parser_t Encapsulates YAML load parsing process state
  */
 typedef struct _bzen_yaml_parser_s
@@ -111,16 +138,39 @@ typedef struct _bzen_yaml_parser_s
 } bzen_yaml_parser_t;
 
 /**
- * Allocate memory for a new YAML parse process state data struct.
+ * Allocate memory for a new YAML event.
+ * 
+ * @return bzen_yaml_event_t* Newly allocated struct or NULL on fail.
+ */
+bzen_yaml_event_t* bzen_yaml_event_create();
+
+/**
+ * Free memory allocated for given YAML event.
  *
- * Application is responsible for freeing allocated memory @see 
+ * @param[in] bzen_yaml_event* Pointer to memory block to free.
+ *
+ * @return @c 0 on success, @c -1 on error.
+ */
+int bzen_yaml_event_destroy(bzen_yaml_event_t* event);
+
+/**
+ * Restore given YAML event to default state.
+ *
+ * @param[in,out] bzen_yaml_event_t* event Pointer to event.
+ *
+ * @return @c 0 on success, @c -1 on fail.
+ */
+int bzen_yaml_event_restore(bzen_yaml_event_t* event);
+
+/**
+ * Allocate memory for a new YAML parse process state data struct.
  *
  * @return bzen_yaml_parser_t* Newly allocated struct or NULL on fail.
  */
 bzen_yaml_parser_t* bzen_yaml_parser_create();
 
 /**
- * Free memory allocated for given data structure.
+ * Free memory allocated for given YAML parser.
  *
  * @param[in] bzen_yaml_parser_t* Pointer to memory block to free.
  *
@@ -129,11 +179,21 @@ bzen_yaml_parser_t* bzen_yaml_parser_create();
 int bzen_yaml_parser_destroy(bzen_yaml_parser_t* parser);
 
 /**
- * Restore parser data structure to initial state.
+ * Get next event in YAML stream.
  *
- * @param bzen_yaml_parser_t* parser Pointer to the parser structure.
+ * @param[in,out] bzen_yaml_parser_t* parser Parser encapsulating YAML stream.
+ * @param[in,out] bzen_yaml_event_t* event Sink for event data.
+ *
+ * @return @c 0 on success, @c -1 on error.
+ */
+int bzen_yaml_parser_next_event(bzen_yaml_parser_t* parser, bzen_yaml_event_t* event);
+
+/**
+ * Restore given YAML parser to default state.
+ *
+ * @param[in,out] bzen_yaml_parser_t* parser Pointer to the parser structure.
  * 
- * @return 0 on success, -1 on error.
+ * @return @c 0 on success, @c -1 on error.
  */
 int bzen_yaml_parser_restore(bzen_yaml_parser_t* parser);
 
