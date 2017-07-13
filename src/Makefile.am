@@ -35,9 +35,11 @@ bzeninc_HEADERS = \
 	$(top_srcdir)/inc/bzendbug.h \
 	$(top_srcdir)/inc/bzenipc.h \
 	$(top_srcdir)/inc/bzenlog.h \
+	$(top_srcdir)/inc/bzennfl.h \
 	$(top_srcdir)/inc/bzenmem.h \
 	$(top_srcdir)/inc/bzensbuf.h \
 	$(top_srcdir)/inc/bzensock.h \
+	$(top_srcdir)/inc/bzenstrm.h \
 	$(top_srcdir)/inc/bzentest.h \
 	$(top_srcdir)/inc/bzenthread.h
 	$(top_srcdir)/inc/bzentime.h \
@@ -57,12 +59,16 @@ libbzenc_la_SOURCES = \
 	bzenipc.h \
 	bzenlog.c \
 	bzenlog.h \
+	bzennfl.c \
+	bzennfl.h \
 	bzenmem.c \
 	bzenmem.h \
 	bzensbuf.c \
 	bzensbuf.h \
 	bzensock.c \
 	bzensock.h \
+	bzenstrm.c \
+	bzenstrm.h \
 	bzentest.c \
 	bzentest.h \
 	bzenthread.c \

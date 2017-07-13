@@ -1,3 +1,10 @@
+2017-07-13  Karl Kuhrman  <kkuhrman@barzensuit.org>
+	* configure.ac: advance to version 0.2.1
+	* inc/bzennfl.h: skeleton declaration of Barzensuit Neutral Form Language
+	* inc/bzenstrm.h: skeleton declaration of stream manipulation routines
+	* src/bzennfl.c: skeleton definition of Barzensuit Neutral Form Language
+	* src/bzenstrm.c: skeleton definition of stream manipulation routines
+	
 2017-07-12  Karl Kuhrman  <kkuhrman@barzensuit.org>
 	* inc/bzenyaml.h: declare bzen_yaml_event create, destroy, restore
 	* src/bzenyaml.c: define bzen_yaml_parser_event create, destroy, restore

@@ -36,10 +36,12 @@ check_PROGRAMS = \
 	bzentest_dbug \
 	bzentest_environment \
 	bzentest_log \
+	bzentest_nfl \
 	bzentest_sbuf \
 	bzentest_socket_create_local \
 	bzentest_socket_create_inet \
 	bzentest_socket_fail \
+	bzentest_strm \
 	bzentest_ut \
 	bzentest_thread \
 	bzentest_scratch \
@@ -49,10 +51,12 @@ TESTS = \
 	bzentest_dbug \
 	bzentest_environment \
 	bzentest_log \
+	bzentest_nfl \
 	bzentest_sbuf \
 	bzentest_socket_create_local \
 	bzentest_socket_create_inet \
 	bzentest_socket_fail \
+	bzentest_strm \
 	bzentest_ut \
 	bzentest_thread \
 	bzentest_scratch \
