@@ -108,6 +108,19 @@ typedef struct bzen_yaml_event_s
  */
 
 /**
+ * @typedef bzen_yaml_parser_state_t
+ * @{
+ */
+typedef enum bzen_yaml_parser_state_e
+  {
+    /** Expect the start of the YAML stream. */
+    BZEN_YAML_PARSER_STATE_STREAM_START
+  } bzen_yaml_parser_state_t;
+/**
+ * @}
+ */
+
+/**
  * @typedef bzen_yaml_parser_t Encapsulates YAML load parsing process state
  */
 typedef struct _bzen_yaml_parser_s
