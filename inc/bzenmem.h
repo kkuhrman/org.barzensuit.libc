@@ -23,8 +23,7 @@
 #define _BZENLIBC_MEM_H_
 
 #include <config.h>
-#include <stdio.h>
-#include "xsize.h"
+#include "bzenpriv.h"
 
 /**
  * Free memory allocated dynamically.

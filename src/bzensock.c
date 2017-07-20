@@ -57,7 +57,7 @@ struct sockaddr_in* bzen_socket_address_in(uint32_t host, uint32_t port)
   size_t address_alloc_size;
 
   /* Allocate memory for the data structure. */  
-  address_alloc_size = xcast_size_t(sizeof(struct sockaddr_in));  
+  address_alloc_size = BZEN_SIZEOF(struct sockaddr_in);  
   address = (struct sockaddr_in*)bzen_malloc(address_alloc_size);
   memset(address, 0, address_alloc_size);
   address->sin_family = AF_INET;
@@ -87,13 +87,13 @@ struct sockaddr_un* bzen_socket_address_un(const char* name)
     }
 
   /* Allocate memory for the data structure. */  
-  address_alloc_size = xcast_size_t(sizeof(struct sockaddr_un));  
+  address_alloc_size = BZEN_SIZEOF(struct sockaddr_un);  
   address = (struct sockaddr_un*)bzen_malloc(address_alloc_size);
   memset(address, 0, address_alloc_size);
 
   /* Allocate memory with data structure for the path. */
-  size_t path_size = xcast_size_t(strlen(name));
-  if (path_size > xcast_size_t(sizeof(address->sun_path)))
+  size_t path_size = BZEN_SIZE(sizeof(char) * strlen(name));
+  if (path_size > BZEN_SIZEOF(address->sun_path))
     {
       /* @todo: Gnu sockets use static allocation for path.
          not sure of workaround for path names exceeding max path. */

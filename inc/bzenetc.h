@@ -23,6 +23,7 @@
 #define _BZEN_ETC_H_
 
 #include <config.h>
+#include "bzenpriv.h"
 
 /**
  * @enum Configuration file types.

@@ -31,7 +31,7 @@
 /**
  * The default directory where log files are written to.
  */
-static char logdirbuf[BZEN_LOG_MAX_PATH_CHARS];
+static char logdirbuf[BZEN_FILE_NAME_LIMIT];
 
 /**
  * Default number of logs.
@@ -389,16 +389,16 @@ int bzen_log_open(const char* name, const char* attr)
       /* Allocate memory for log names and locks. */
       log_id = -1;
       logs_allocated = BZEN_DEFAULT_NUMBER_LOGS;
-      log_names = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
-						logs_allocated);
-      log_paths = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
-						logs_allocated);
-      log_evtline_buffers = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
-						logs_allocated);
-      log_message_buffers = (char**)bzen_malloc(xcast_size_t(sizeof(char*)) * 
-						logs_allocated);
-      log_locks = (bzen_loglock_t**)bzen_malloc(xcast_size_t(sizeof(bzen_loglock_t*)) * 
-						logs_allocated);
+      log_names = (char**)bzen_malloc(BZEN_SIZE(sizeof(char*) * 
+						logs_allocated));
+      log_paths = (char**)bzen_malloc(BZEN_SIZE(sizeof(char*) * 
+						logs_allocated));
+      log_evtline_buffers = (char**)bzen_malloc(BZEN_SIZE(sizeof(char*) * 
+							  logs_allocated));
+      log_message_buffers = (char**)bzen_malloc(BZEN_SIZE(sizeof(char*) * 
+							  logs_allocated));
+      log_locks = (bzen_loglock_t**)bzen_malloc(BZEN_SIZE(sizeof(bzen_loglock_t*) * 
+							  logs_allocated));
     }
   else
     {
@@ -426,30 +426,30 @@ int bzen_log_open(const char* name, const char* attr)
 	         We want to use minimum allocated size as upper index. */
 	      log_names = (char**)bzen_realloc(log_names,
 					       &actual_cbuf_allocate,
-					       xcast_size_t(sizeof(char*)));
+					       BZEN_SIZEOF(char*));
 	      actual_cbuf_allocate_min = actual_cbuf_allocate;
 
 	      log_paths = (char**)bzen_realloc(log_paths,
 					       &actual_cbuf_allocate,
-					       xcast_size_t(sizeof(char*)));
+					       BZEN_SIZEOF(char*));
 	      actual_cbuf_allocate_min = (actual_cbuf_allocate_min < actual_cbuf_allocate) ?
 		actual_cbuf_allocate_min : actual_cbuf_allocate;
 
 	      log_evtline_buffers = (char**)bzen_realloc(log_evtline_buffers,
 					       &actual_cbuf_allocate,
-					       xcast_size_t(sizeof(char*)));
+					       BZEN_SIZEOF(char*));
 	      actual_cbuf_allocate_min = (actual_cbuf_allocate_min < actual_cbuf_allocate) ?
 		actual_cbuf_allocate_min : actual_cbuf_allocate;
 
 	      log_message_buffers = (char**)bzen_realloc(log_message_buffers,
 					       &actual_cbuf_allocate,
-					       xcast_size_t(sizeof(char*)));
+					       BZEN_SIZEOF(char*));
 	      actual_cbuf_allocate_min = (actual_cbuf_allocate_min < actual_cbuf_allocate) ?
 		actual_cbuf_allocate_min : actual_cbuf_allocate;
 
 	      log_locks = (bzen_loglock_t**)bzen_realloc(log_locks,
 							 &actual_lock_allocate,
-							 xcast_size_t(sizeof(bzen_loglock_t*)));
+							 BZEN_SIZEOF(bzen_loglock_t*));
 
 	      /* @todo: A  disparity in number of names vs. locks presents a 
 	         potentially unsafe situation. We need to correct any disparity 
@@ -466,30 +466,30 @@ int bzen_log_open(const char* name, const char* attr)
     {
       /* No. Create new entry.  Allocate memory for name.  */
       log_id = logs_used++;
-      log_name_size = xcast_size_t(sizeof(char) * strlen(name));
+      log_name_size = BZEN_SIZE(sizeof(char) * strlen(name));
       log_names[log_id] = (char*)bzen_malloc(log_name_size);
       memcpy(log_names[log_id], name, log_name_size);
       log_names[log_id][log_name_size] = '\0';
 
       /* Store full path to  log file. */
-      log_path_size = xcast_size_t(sizeof(char) *
+      log_path_size = BZEN_SIZE(sizeof(char) *
 				   strlen(logdir) +
 				   strlen(name) +
 				   2); /* path delimiter & terminating null */
       log_paths[log_id] = (char*)bzen_malloc(log_path_size);
       sprintf(log_paths[log_id], "%s%s%s", 
 	      logdir,
-	      PATH_DELIMITER, 
+	      BZEN_PATH_DELIMITER, 
 	      name);
 
       /* Allocate memory for string buffers. */
-      log_evtline_buffers[log_id] = (char*)bzen_malloc(xcast_size_t(sizeof(char) *
+      log_evtline_buffers[log_id] = (char*)bzen_malloc(BZEN_SIZE(sizeof(char) *
 								    BZEN_LOG_EVENT_LINE_MAX_CHARS));
-      log_message_buffers[log_id] = (char*)bzen_malloc(xcast_size_t(sizeof(char) *
+      log_message_buffers[log_id] = (char*)bzen_malloc(BZEN_SIZE(sizeof(char) *
 								    BZEN_LOG_MESSAGE_MAX_CHARS));
 
       /* Allocate memory for lock. */
-      log_lock_size = xcast_size_t(sizeof(bzen_loglock_t));
+      log_lock_size = BZEN_SIZEOF(bzen_loglock_t);
       log_locks[log_id] = (bzen_loglock_t*)bzen_malloc(log_lock_size);
 
       /* Initialize the mutex. */

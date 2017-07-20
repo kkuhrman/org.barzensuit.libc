@@ -44,6 +44,8 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#include "bzenpriv.h"
+
 /* libzenc includes */
 
 /* A default prefix for things such as local addresses. */

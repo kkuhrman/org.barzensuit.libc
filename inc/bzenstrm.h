@@ -23,5 +23,18 @@
 #define _BZEN_STRM_H_
 
 #include <config.h>
+#include "bzenpriv.h"
+
+/** Size of opentype attribute in bytes. */
+#define BZEN_STREAM_OPENTYPE_SIZE 3
+
+/**
+ * Helper function returns open file status flags.
+ *
+ * @param[in] bzen_stream_t* stream The stream to check.
+ *
+ * @return file status flags as a bit mask or @c -1 on error.
+ */
+int bzen_stream_get_file_status(bzen_stream_t* stream);
 
 #endif /* _BZEN_STRM_H_ */

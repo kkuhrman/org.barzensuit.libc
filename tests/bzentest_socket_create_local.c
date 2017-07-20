@@ -80,11 +80,11 @@ int main (int argc, char *argv[])
   socket_dir = getenv("BZENTEST_TEMP_DIR");
   server_socket_full_path_size = xcast_size_t(strlen(socket_dir) + 
     strlen(server_socket_file) + 
-    strlen(PATH_DELIMITER) + 1);
+    strlen(BZEN_PATH_DELIMITER) + 1);
   server_socket_full_path = (char*)bzen_malloc(server_socket_full_path_size);
   sprintf(server_socket_full_path, "%s%s%s", 
 	  socket_dir,
-	  PATH_DELIMITER,
+	  BZEN_PATH_DELIMITER,
 	  server_socket_file);
   unlink(server_socket_full_path);
   server_address = bzen_socket_address_un(server_socket_full_path);
@@ -125,11 +125,11 @@ int main (int argc, char *argv[])
   /* client address. */
   ;  client_socket_full_path_size = xcast_size_t(strlen(socket_dir) + 
     strlen(client_socket_file) + 
-    strlen(PATH_DELIMITER) + 1);
+    strlen(BZEN_PATH_DELIMITER) + 1);
   client_socket_full_path = (char*)bzen_malloc(client_socket_full_path_size);
   sprintf(client_socket_full_path, "%s%s%s", 
 	  socket_dir,
-	  PATH_DELIMITER,
+	  BZEN_PATH_DELIMITER,
 	  client_socket_file);
   unlink(client_socket_full_path);
   client_address = bzen_socket_address_un(client_socket_full_path);

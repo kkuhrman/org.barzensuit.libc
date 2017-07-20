@@ -41,18 +41,12 @@
 #define _BZEN_LOG_H_
 
 #include <config.h>
-#include <stdio.h>
-#include <sys/types.h>
+#include "bzenpriv.h"
 
 /**
  * Default name of directory where log files are written to.
  */
 #define BZEN_LOG_DIR_DEFAULT_NAME "bzenlog"
-
-/**
- * Max number of chars in log path.
- */
-#define BZEN_LOG_MAX_PATH_CHARS 255
 
 /**
  * Log line lengths, string buffers  and delimiters etc.

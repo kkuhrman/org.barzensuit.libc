@@ -22,6 +22,9 @@
 #ifndef _BZENLIBC_TEST_H_
 #define _BZENLIBC_TEST_H_
 
+#include <config.h>
+#include "bzenpriv.h"
+
 /**
  * Some POSIX systems standardize on zero as success
  * and nonzero as fail, based on the convention of 

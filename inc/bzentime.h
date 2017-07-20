@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <time.h>
+#include "bzenpriv.h"
 
 /**
  * Safe buffer size for printing time strings.

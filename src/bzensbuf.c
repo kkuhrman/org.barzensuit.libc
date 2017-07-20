@@ -86,7 +86,7 @@ bzen_cbuflock_t* bzen_sbuf_create(size_t size)
   FILE* file;
   size_t new_buffer_size;
 
-  new_buffer_size = xcast_size_t(sizeof(int) * size);
+  new_buffer_size = BZEN_SIZE(sizeof(int) * size);
   file = fmemopen(NULL, new_buffer_size, "r+");
   pcbuflock = bzen_sbuf_create_file(file);
   if (pcbuflock == NULL)
@@ -122,7 +122,7 @@ bzen_cbuflock_t* bzen_sbuf_create_file(FILE* file)
     {
       /* Allocate memory for FILE* pointers to streams. */
       buffers_allocated = BZEN_DEFAULT_NUMBER_OF_BUFFERS;
-      buffers = (FILE**)bzen_malloc(xcast_size_t(sizeof(FILE*)) * buffers_allocated);
+      buffers = (FILE**)bzen_malloc(BZEN_SIZE(sizeof(FILE*)) * buffers_allocated);
     }
   else
     {
@@ -132,12 +132,12 @@ bzen_cbuflock_t* bzen_sbuf_create_file(FILE* file)
 	  buffers_allocated += BZEN_DEFAULT_NUMBER_OF_BUFFERS;
 	  buffers = (FILE**)bzen_realloc(buffers,
 					 &buffers_allocated,
-					 xcast_size_t(sizeof(FILE*)));
+					 BZEN_SIZEOF(FILE*));
 	}
     }
 
   /* Determine size of buffer struct.  */
-  buffer_struct_size = xcast_size_t(sizeof(bzen_cbuflock_t));
+  buffer_struct_size = BZEN_SIZEOF(bzen_cbuflock_t);
   
   /* Allocate memory for buffer struct. */
   pcbuflock = (bzen_cbuflock_t*)bzen_malloc(buffer_struct_size);

@@ -1,3 +1,15 @@
+2017-07-20 Karl Kuhrman <kkuhrman@barzensuit.org>
+	* inc/bzenapi.h: stream manipulation functions (public)
+	* inc/bzenstrm.h: stream manipulation functions (private)
+	* src/bzenstrm.c: wrap stream open, close, file stat, get/put c
+	* tests/bzentest_strm.c: unit tests on stream manipulation functions
+	
+2017-07-13 Karl Kuhrman <kkuhrman@barzensuit.org>
+	* configure.ac: Version 0.3.0 Refactor library, separate public (API) from private code
+	* inc/bzenapi.h: new header is only file exported to define public interface (API)
+	* inc/bzenpriv.h: new header comprises library private global defs and includes
+	* inc/bzenipc.h: refactor moving public interface to bzenapi.h
+	
 2017-07-13  Karl Kuhrman  <kkuhrman@barzensuit.org>
 	* configure.ac: advance to version 0.2.1
 	* inc/bzennfl.h: skeleton declaration of Barzensuit Neutral Form Language

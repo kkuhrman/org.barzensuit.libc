@@ -41,7 +41,7 @@ void* bzen_malloc(size_t n)
   ptr =  xmalloc(n);
   
   /* zero-out newly allocated memory. */
-  memset(ptr, 0, n);
+  /* memset(ptr, 0, n); */
   
   return ptr;
 }

@@ -48,6 +48,7 @@
 #define _BZEN_YAML_H_
 
 #include <config.h>
+#include "bzenpriv.h"
 #include "bzensbuf.h"
 
 /**

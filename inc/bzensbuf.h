@@ -32,8 +32,7 @@
 #define _BZEN_SBUF_H_
 
 #include <config.h>
-#include <stdio.h>
-#include <sys/types.h>
+#include "bzenpriv.h"
 #include "bzenthread.h"
 
 /**

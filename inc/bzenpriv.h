@@ -1,6 +1,6 @@
 /**
- * @file:	bzendbug.h
- * @brief:	Library debugging utilities.
+ * @file:	bzenpriv.h
+ * @brief:      Library private global defs.
  * 
  * @copyright:	Copyright (C) 2017 Kuhrman Technology Solutions LLC
  * @license:	GPLv3+: GNU GPL version 3
@@ -19,24 +19,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BZEN_DBUG_H_
-#define __BZEN_DBUG_H_
+#ifndef _BZEN_PRIV_H_
+#define _BZEN_PRIV_H_
 
 #include <config.h>
-#include "bzenpriv.h"
-#include "bzensbuf.h"
+#include <assert.h>
+#include <string.h>
+#include "xsize.h"
+#include "bzenapi.h"
 
-/*
- * Dumps content of buffer to a log file.
- *
- * @param bzen_cbuflock_t* cbuflock Buffer containing data to dump to log.
- * @param const char* name The name of the log to write to.
- * @param size_t size How much to dump? For whole buffer use cbuflock->size.
- *
- * @return size_t Number of characters written to log or -1 on error.
+/**
+ * @todo: what's in and what's out based on NDEBUG flag?
  */
-size_t bzen_dbug_log_buffer_dump(bzen_cbuflock_t* cbuflock, 
-				 const char* name,
-				 size_t size);
+#define BZEN_ASSERT(expression) assert(expression)
 
-#endif /* __BZEN_DBUG_H_ */
+/**
+ * Cast arbitrary size as size_t with overflow protection.
+ *
+ * @see: xcast_size_t() SIZE_MAX defined in limits.h
+ */
+#define BZEN_SIZE(N) xcast_size_t(N)
+
+/**
+ * Cast sizeof given type to size_t with overflow protection.
+ */
+#define BZEN_SIZEOF(T) xcast_size_t( sizeof(T) )
+
+#endif /* _BZEN_PRIV_H_ */

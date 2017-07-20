@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <pthread.h>
+#include "bzenpriv.h"
 
 /**
  * Encapsulates pthread_mutex_destroy().

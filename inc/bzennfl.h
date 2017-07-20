@@ -23,5 +23,6 @@
 #define _BZEN_NFL_H_
 
 #include <config.h>
+#include "bzenpriv.h"
 
 #endif /* _BZEN_NFL_H_ */

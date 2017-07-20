@@ -33,7 +33,7 @@ bzen_yaml_event_t* bzen_yaml_event_create()
   int status;
 
   /* Allocate memory for event. */
-  event_size = xcast_size_t(sizeof(bzen_yaml_event_t));
+  event_size = BZEN_SIZEOF(bzen_yaml_event_t);
   event = (bzen_yaml_event_t*)bzen_malloc(event_size);
   if (event == NULL)
     {
@@ -99,7 +99,7 @@ bzen_yaml_parser_t* bzen_yaml_parser_create()
   int status;
 
   /* Allocate memory for parser. */
-  parser_size = xcast_size_t(sizeof(bzen_yaml_parser_t));
+  parser_size = BZEN_SIZEOF(bzen_yaml_parser_t);
   parser = (bzen_yaml_parser_t*)bzen_malloc(parser_size);
   if (parser == NULL)
     {

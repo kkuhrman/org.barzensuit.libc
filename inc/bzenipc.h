@@ -34,27 +34,6 @@
 #define _BZEN_IPC_H_
 
 #include <config.h>
-#include <stdint.h>
-#include <sys/types.h>
-
-/**
- * @typedef bzen_ipc_option_t
- */
-typedef struct _bzen_ipc_option_s
-{
-  size_t buffer_size;
-  size_t queue_length;
-  uint32_t port;
-} bzen_ipc_option_t;
-
-/**
- * Fork child process and run as daemon listening on BSP socket.
- *
- * @param void* exitfn Callback function passed to atexit().
- * @param void* ipcfn Callback function for ipc thread.
- * @param void* bzen_ipc_option_t ipcot IPC options
- * @param void* @todo bzen_log_option_t logopt Options for Logging
- */
-int bzen_ipc_fork(void* exitfn, void* ipcfn, void* ipcopt, void* logopt);
+#include "bzenpriv.h"
 
 #endif /* _BZEN_IPC_H_ */
